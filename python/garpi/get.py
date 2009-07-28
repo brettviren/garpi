@@ -26,10 +26,10 @@ def get_http_ftp(what,url,target,overwrite):
         res = urlopen(url)
     except HTTPError, e:
         print e.__class__, e 
-        raise IOError
+        raise IOError,'Failed to get '+url
     except URLError, e:
         print e.__class__, e 
-        raise IOError
+        raise IOError,'Failed to get '+url
 
 
     targetfp = open(target,"w")
