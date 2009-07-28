@@ -12,7 +12,7 @@ def get_http_ftp(what,url,target,overwrite):
         if overwrite:
             os.remove(target)
         else:
-            return
+            return target
 
     proxy = os.getenv(what+'_proxy')
     if proxy : 
@@ -35,7 +35,7 @@ def get_http_ftp(what,url,target,overwrite):
     targetfp = open(target,"w")
     shutil.copyfileobj(res,targetfp)
 
-    return
+    return target
 
 def uriparse(uri):
     '''
@@ -65,8 +65,8 @@ def get(url,target,overwrite=False):
 
     git+TRANSPORT: git-clone a repository.  TRANSPORT can be http,
     rsync, ssh or empty to use native git protocol (the '+' can be
-    omitted).  See git-clone(1) for details.  If overwriting a
-    git-pull is done.
+    omitted).  For local repository, use "git+file:///path/to/git".
+    See git-clone(1) for details.  If overwriting a git-pull is done.
 
     svn+TRANSPORT: - perform "svn co" using the remaining URL with
     'svn+' removed.  If overwritting, an "svn update" is done.
@@ -76,9 +76,9 @@ def get(url,target,overwrite=False):
     urlp = uriparse(url)
     #print urlp
     if urlp[0] == 'http' or urlp[0] == 'ftp':
-        get_http_ftp(urlp[0],url,target,overwrite)
+        return get_http_ftp(urlp[0],url,target,overwrite)
 
-    pass
+    raise ValueError, 'Unhandled URL: "%s"'%url
 
 if '__main__' == __name__:
     import sys

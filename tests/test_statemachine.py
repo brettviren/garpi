@@ -17,7 +17,7 @@ def ones_counter(val):
 
 def tens_counter(val):
     print "TENS State: ",
-    #raise ValueError,"I don't like %f"%val
+    raise ValueError,"I don't like %f"%val
     while 1:
         if val <= 0 or val >= 30:
             newState =  "OUT_OF_RANGE"; break

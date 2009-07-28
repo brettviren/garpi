@@ -64,10 +64,12 @@ class StateMachine:
             except Exception,err:
                 print 'State handler for %s failed: %s'%(state,err)
                 self.recordState(state,'FAILED',str(err))
-                import pickle
-                core = open(StateMachine.corefile,"w")
+                import pickle, gzip
+                
+                core = gzip.GzipFile(StateMachine.corefile,"w")
                 pickle.dump(state,core)
                 pickle.dump(cargo,core)
+                core.close()
                 print 'core dumped'
                 raise Exception,err
             else:
