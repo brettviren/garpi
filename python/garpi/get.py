@@ -4,14 +4,18 @@ Classes and functions to get files or directory trees from
 repositories.
 '''
 
+from util import log
+
 def get_http_ftp(what,url,target,overwrite):
     from urllib2 import Request, urlopen, URLError, HTTPError, ProxyHandler, build_opener, install_opener
     import os, shutil
 
     if os.path.exists(target):
         if overwrite:
+            log.info('Removing pre-existing file %s'%target)
             os.remove(target)
         else:
+            log.info('Pre-existing file found, not re-getting %s'%target)
             return target
 
     proxy = os.getenv(what+'_proxy')
@@ -73,12 +77,16 @@ def get(url,target,overwrite=False):
 
     '''
 
+    log.info('Getting url "%s" --> "%s"'%(url,target))
+
     urlp = uriparse(url)
     #print urlp
     if urlp[0] == 'http' or urlp[0] == 'ftp':
         return get_http_ftp(urlp[0],url,target,overwrite)
 
-    raise ValueError, 'Unhandled URL: "%s"'%url
+    msg = 'Unhandled URL: "%s"'%url
+    log.error(msg)
+    raise ValueError, msg
 
 if '__main__' == __name__:
     import sys

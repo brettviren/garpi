@@ -2,9 +2,9 @@
 # http://www.ibm.com/developerworks/library/l-python-state.html
 
 class StateMachine:
-    corefile = 'statemachine.core'
-
+    default_core_file='statemachine.core'
     def __init__(self,statefile = None):
+        self.corefile = StateMachine.default_core_file
         self.handlers = {}
         self.endStates = []
         self.statefile = statefile
@@ -66,12 +66,16 @@ class StateMachine:
                 self.recordState(state,'FAILED',str(err))
                 import pickle, gzip
                 
-                core = gzip.GzipFile(StateMachine.corefile,"w")
-                pickle.dump(state,core)
-                pickle.dump(cargo,core)
+                core = gzip.GzipFile(self.corefile,"w")
+                core.write(state+'\n')
+                try:
+                    cargo.dump(core)
+                except AttributeError:
+                    print 'Failed to dump cargo'
+                        
                 core.close()
                 print 'core dumped'
-                raise Exception,err
+                raise
             else:
                 self.recordState(state,'EXITED')
 
