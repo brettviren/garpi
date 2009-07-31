@@ -1,7 +1,7 @@
 '''
 States for installing CMT
 '''
-from garpi.util import log, untar, source2env
+from garpi.util import log, untar, source2env, cmd
 from garpi.exception import InconsistentState
 import os
 
@@ -15,6 +15,7 @@ class CmtStates:
         garpi.machine.add_state('CMT_DOWNLOAD',self.download)
         garpi.machine.add_state('CMT_UNPACK',self.unpack)
         garpi.machine.add_state('CMT_BUILD',self.build)
+        garpi.machine.add_state('CMT_SETUP',self.setup)
         return
 
     def ver(self):
@@ -30,7 +31,7 @@ class CmtStates:
         return '%s/%s/%s'%(self.base_url(),self.ver(),self.tgz())
 
     def srcdir(self):
-        return 'CMT/'+self.ver()
+        return self.garpi.dir.external() + '/CMT/'+self.ver()
 
     def start(self,cargo):
         return ('CMT_DOWNLOAD',cargo)
@@ -51,31 +52,39 @@ class CmtStates:
 
     def unpack(self,cargo):
         log.info('cmt unpack')
-        extdir = self.garpi.go.external()
         target = self.srcdir()
         if os.path.exists(target):
-            log.info('CMT appears to already be unpacked in %s/%s'%(extdir,target))
+            log.info('CMT appears to already be unpacked in %s'%(target))
             return ('CMT_BUILD',cargo)
+        self.garpi.go.external()
         self.check_tgz()
         untar(self.tgz())
         return ('CMT_BUILD',cargo)
 
     def build(self,cargo):
         log.info('cmt build')
-        extdir = self.garpi.go.external()
         target = self.srcdir() + '/mgr/setup.sh'
-
+        self.garpi.go.to(self.srcdir() + '/mgr/')
         if os.path.exists(target):
             log.info('CMT appears to already have be initialized, found: %s'%target)
         else:
-            self.garpi.go.to(self.srcdir() + '/mgr/')
-            self.garpi.cmd('./INSTALL')
+            cmd('./INSTALL')
 
-        self.garpi.go.to(self.srcdir() + '/mgr/')
         env = source2env('setup.sh')
-        cmt = '%s/%s/%s/cmt'%(extdir,self.srcdir(),env['CMTCONFIG'])
+        cmt = '%s/%s/cmt'%(self.srcdir(),env['CMTCONFIG'])
         if os.path.exists(cmt):
             log.info('CMT appears to already have been built: %s'%cmt)
         else:
-            self.garpi.cmd('make',env=env)
-        return ('CMT_DONE',cargo)
+            cmd('make',env=env)
+        return ('CMT_SETUP',cargo)
+
+    def setup(self,cargo):
+        setup = self.srcdir() + '/mgr/setup'
+        setupdir = self.garpi.go.setup()
+        def do_link(ext):
+            if os.path.exists('00_cmt'+ext): return
+            os.symlink(setup+ext,'00_cmt'+ext)
+        for ext in ['.sh','.csh']:
+            do_link(ext)
+        return ('CMT_DONE',cargo)        
+        

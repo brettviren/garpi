@@ -1,4 +1,5 @@
-__all__ = [ 'control', 'CmtStates' ]
+__all__ = [ 'control', 'MainSetupScript', 'CmtStates' ]
 
 from cmt import CmtStates
 import control
+from setup import MainSetupScript

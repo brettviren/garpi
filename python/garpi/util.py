@@ -116,3 +116,51 @@ def source2env(filename):
         env[key] = val
         continue
     return env
+
+def goto(theDir):
+    if not os.path.exists(theDir):
+        log.info('mkdir %s'%theDir)
+        os.makedirs(theDir)
+    os.chdir(theDir)
+    log.info('goto %s'%theDir)
+    return theDir
+
+def cmd(cmd,env=None):
+    if type(cmd) == type(""):
+        cmds = cmd.split()
+        if len(cmds) > 1: cmd = cmds
+
+    log.info('running: %s'%cmd)
+    from subprocess import Popen, PIPE, STDOUT
+
+    try:
+        proc = Popen(cmd,stdout=PIPE,stderr=STDOUT,env=env)
+    except OSError,err:
+        log.error_notrace(err)
+        log.error_notrace('In directory %s'%os.getcwd())
+        raise
+
+    from util import log_maker
+    old_format = log_maker.set_format('%(message)s')
+
+    madadayo = True
+    res = None
+    while madadayo:
+        print 'readline...',
+        line = proc.stdout.readline()
+        print line
+        res = proc.poll()
+        if not line and res is not None: madadayo = False
+        if line: log.info(line.strip())
+        continue
+
+    log_maker.set_format(old_format)
+
+    if res is not 0:
+        if type(cmd) == list: cmd = " ".join(cmd)
+        err = 'Command: %s failed with code %d'%(cmd,res)
+        log.error(err)
+        from exception import CommandFailure
+        raise CommandFailure,err
+
+    return

@@ -1,23 +1,41 @@
 #!/usr/bin/env python
 
 import os,sys
-from util import log
+from util import log,goto
+
+class Dir:
+    def __init__(self,garpi):
+        self.garpi = garpi
+
+    def external(self):
+        return self.garpi.opts.base_directory + '/external'
+
+    def projects(self):
+        return self.garpi.opts.base_directory + '/' + self.garpi.opts.name
+
+    def setup(self):
+        return self.projects() + '/setup'
 
 class Go:
     def __init__(self,garpi):
         self.garpi = garpi
+        self.dir = Dir(garpi)
         return
 
-    def to(self,theDir):
-        if not os.path.exists(theDir):
-            os.makedirs(theDir)
-        os.chdir(theDir)
-        return theDir
+    def to(self,theDir): 
+        return goto(theDir)
 
     def external(self):
         'Go to the external directory'
-        theDir = garpi.opts.base_directory + '/external'
-        return self.to(theDir)
+        return self.to(self.dir.external())
+
+    def projects(self):
+        'Go to the directory holding projects'
+        return self.to(self.dir.projects())
+
+    def setup(self):
+        'Go to the setup directory'
+        return self.to(self.dir.setup())
 
 class Garpi:
     '''
@@ -27,6 +45,7 @@ class Garpi:
 
     def __init__(self,argv):
         self.go = Go(self)
+        self.dir = Dir(self)
         self.machine = None
         self._env = os.environ
 
@@ -59,13 +78,18 @@ class Garpi:
         parser.add_option('-l','--log-file',default='garpi.log',type='string',
                           help='Specify a log file')
         parser.add_option('-n','--name',default='projects',type='string',
-                          help='Name of directory to hold the projects')
+                          help='Name used to identify this build, will name the sub directory of --base-directory')
         parser.add_option('-b','--base-directory',default=os.getcwd(),type='string',
                           help='Base directory holding project and external areas')
 
         (options,args) = parser.parse_args(args=argv)
         self.opts = options
         self.args = args
+
+        # fix up options
+        if self.opts.base_directory[0] != '/': 
+            self.opts.base_directory = os.getcwd() + '/' + self.opts.base_directory
+        
 
         # Get defaults 
         from ConfigParser import SafeConfigParser
@@ -136,36 +160,6 @@ class Garpi:
         log.info('Garpi starting')
         self.machine.run(self,self.opts.starting_state)
         log.info('Garpi build done')
-
-    def cmd(self,cmd,env=None):
-        log.info('running: %s'%cmd)
-        from subprocess import Popen, PIPE, STDOUT
-
-        try:
-            proc = Popen(cmd,stdout=PIPE,stderr=STDOUT,env=env)
-        except OSError,err:
-            log.error_notrace(err)
-            log.error_notrace('In directory %s'%os.getcwd())
-            raise
-
-        from util import log_maker
-        old_format = log_maker.set_format('%(message)s')
-
-        madadayo = True
-        res = None
-        while madadayo:
-            line = proc.stdout.readline()
-            res = proc.poll()
-            if not line and res is not None: madadayo = False
-            if line: log.info(line.strip())
-            continue
-
-        log_maker.set_format(old_format)
-
-        if res is not 0:
-            log.error('Command: %s failed with code %d'%(cmd,res))
-            from exception import CommandFailure
-            raise CommandFailure,res
 
     pass
 

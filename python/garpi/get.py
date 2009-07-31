@@ -4,7 +4,29 @@ Classes and functions to get files or directory trees from
 repositories.
 '''
 
-from util import log
+from util import log, goto, cmd
+import os, commands
+
+def get_git(scheme,url,target,overwrite,tag):
+    if os.path.exists(target + '/.git'):
+        if not overwrite: return
+    else:
+        if len(scheme) == 1: giturl = url
+        else: giturl = url[4:]
+        cmd('git clone %s %s'%(giturl,target))
+
+    goto(target)
+    cmd('git fetch')
+    out = commands.getoutput('git branch')
+    for line in out.split('\n'):
+        if line[0] != '*': continue
+        out = line.split()[1]
+        break
+    print out,tag
+    if out != tag:
+        cmd('git checkout -t -b %s %s'%(tag,tag))
+    cmd('git pull')
+    return
 
 def get_http_ftp(what,url,target,overwrite):
     from urllib2 import Request, urlopen, URLError, HTTPError, ProxyHandler, build_opener, install_opener
@@ -51,7 +73,7 @@ def uriparse(uri):
     #print colon, slashslash, slash
     return [uri[:colon], uri[slashslash:slash], uri[slash:]]
 
-def get(url,target,overwrite=False):
+def get(url,target,overwrite=False,tag=None):
     '''
     Get the file or directory tree at the given URL and place it at
     the given target path.  If overwrite is True and target is
@@ -80,9 +102,12 @@ def get(url,target,overwrite=False):
     log.info('Getting url "%s" --> "%s"'%(url,target))
 
     urlp = uriparse(url)
-    #print urlp
     if urlp[0] == 'http' or urlp[0] == 'ftp':
         return get_http_ftp(urlp[0],url,target,overwrite)
+    scheme = urlp[0].split('+')
+    print urlp,scheme
+    if urlp[0] == 'git' or scheme[0] == 'git':
+        return get_git(scheme,url,target,overwrite,tag)
 
     msg = 'Unhandled URL: "%s"'%url
     log.error(msg)

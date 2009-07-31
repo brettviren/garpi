@@ -13,15 +13,21 @@ CMT - install CMT
 
 '''
 
-garpi = None
+class StateLink:
+    def __init__(self,machine,one,two):
+        machine.add_state(one,self.link)
+        self.next = two
+        return
+    def link(self,cargo):
+        return (self.next,cargo)
+
 def register(g):
-    global garpi
-    garpi = g
-    g.machine.add_state('START',start)
-    #...
-    g.machine.add_state('CMT_DONE',stop)
+    m = g.machine
+    StateLink(m,'START','SETUP_START')
+    StateLink(m,'SETUP_DONE','CMT_START')
+    StateLink(m,'CMT_DONE','DONE')
 
 def start(cargo):
-    return ('CMT_START',cargo)
+    return ('SETUP_START',cargo)
 def stop(cargo):
     return ('DONE',cargo)

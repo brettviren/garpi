@@ -1,12 +1,27 @@
 # based on:
 # http://www.ibm.com/developerworks/library/l-python-state.html
 
+from util import log
+import os
+
+def check_expand_path_file(filepath):
+    if filepath[0] != '/': 
+        filepath = os.getcwd() + '/' + filepath
+
+    dirpath = os.path.dirname(filepath)
+    if dirpath != "" and not os.path.exists(dirpath): 
+        os.makedirs(dir)
+    return  filepath
+
+
 class StateMachine:
     default_core_file='statemachine.core'
     def __init__(self,statefile = None):
         self.corefile = StateMachine.default_core_file
         self.handlers = {}
         self.endStates = []
+        if statefile: 
+            statefile = check_expand_path_file(statefile)
         self.statefile = statefile
         return
 
@@ -58,6 +73,7 @@ class StateMachine:
                 raise ValueError,'Unregistered state: %s'%state
 
             self.recordState(state,'ENTERED')
+            log.info('Entering state "%s"'%state)
 
             try:
                 (newState, cargo) = handler(cargo)
