@@ -4,33 +4,37 @@ Classes and functions to get files or directory trees from
 repositories.
 '''
 
-from util import log, goto, cmd
-import os, commands
+from util import log
+from fs import goto, goback
+import os
 
 def get_git(scheme,url,target,overwrite,tag):
+    import git
+
     if os.path.exists(target + '/.git'):
         if not overwrite: return
     else:
         if len(scheme) == 1: giturl = url
         else: giturl = url[4:]
-        cmd('git clone %s %s'%(giturl,target))
+        git.clone(giturl,target)
 
     goto(target)
-    cmd('git fetch')
-    out = commands.getoutput('git branch')
+    git.fetch()
+    out = git.branch()
     for line in out.split('\n'):
         if line[0] != '*': continue
         out = line.split()[1]
         break
     print out,tag
     if out != tag:
-        cmd('git checkout -t -b %s %s'%(tag,tag))
-    cmd('git pull')
+        git.checkout(tag,tag)
+    git.pull()
+    goback()
     return
 
 def get_http_ftp(what,url,target,overwrite):
     from urllib2 import Request, urlopen, URLError, HTTPError, ProxyHandler, build_opener, install_opener
-    import os, shutil
+    import shutil
 
     if os.path.exists(target):
         if overwrite:

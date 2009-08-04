@@ -4,9 +4,9 @@ from garpi.util import log
 
 def test_setup():
     print 'importing setup'
-    from garpi.util import setup
+    from garpi.util import log_maker
     print 'setting up'
-    setup('test_log.log')
+    log_maker.set_file('test_log.log')
     print 'done'
 
 def test_info():

@@ -34,7 +34,8 @@ end;
         csh.close()
 
     def start(self,cargo):
-        base = self.garpi.dir.projects() + '/setup'
+        self.garpi.go.setup()   # make sure dir exists
+        base = self.garpi.go.projects() + '/setup'
         self.dump_sh(base)
         self.dump_csh(base)
         return ('SETUP_DONE',cargo)

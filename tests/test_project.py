@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+from garpi.exception import CommandFailure
 
 def test_project():
     from garpi.projects import Project
@@ -13,7 +14,11 @@ def test_project():
     g = Garpi(['-n','test-release','-b',base])
     p = Project(g,'lcgcmt')
     p.download()
-    p.config()
+    try:
+        p.config()
+        p.make()
+    except CommandFailure,err:
+        pass
 
 if '__main__' == __name__:
     test_project()

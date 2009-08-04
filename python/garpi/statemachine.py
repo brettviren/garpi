@@ -10,7 +10,7 @@ def check_expand_path_file(filepath):
 
     dirpath = os.path.dirname(filepath)
     if dirpath != "" and not os.path.exists(dirpath): 
-        os.makedirs(dir)
+        os.makedirs(dirpath)
     return  filepath
 
 
