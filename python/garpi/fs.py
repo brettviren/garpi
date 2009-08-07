@@ -10,14 +10,14 @@ directories to the applicable function from the "command" module.
 
 '''
 
-from config import cli
-
 def external():
     'Return the absolute path to the directory holding the external packages'
+    from config import cli
     return cli.opts.base_directory + '/external'
 
 def projects():
     'Return the absolute path to the directory holding the projects'
+    from config import cli
     return cli.opts.base_directory + '/' + cli.opts.name
 
 def setup():
@@ -59,4 +59,5 @@ def goback():
         return
     theDir = dirStack.pop()
     os.chdir(theDir)
+    log.info('goback to %s'%theDir)
     return theDir

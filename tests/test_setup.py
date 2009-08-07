@@ -1,8 +1,5 @@
 #!/usr/bin/env python
 
-from test_config import fake_argv
-fake_argv()
-
 import garpi.setup,garpi.fs,garpi.util,garpi.command
 import os
 

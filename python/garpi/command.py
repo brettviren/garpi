@@ -37,10 +37,10 @@ def source(filename,env=None,dir=None,output=False):
     import commands
     ret,cmdres = commands.getstatusoutput(cmdstr)
     if ret != 0:
-        if dir: fs.goback()
         from exception import CommandFailure
         err = 'Failed to source "%s" from %s:\n%s' \
             %(filename,os.getcwd(),cmdres)
+        if dir: fs.goback()
         log.error(err)
         raise CommandFailure, err
 
@@ -81,19 +81,35 @@ def cmd(cmd,env=None,dir=None,output=False):
     split() on spaces.  If spaces are meaningful, pass in a list of
     strings.
 
+    If env is defined it will be set the environment in which the
+    command is run.
+
+    If dir is set the command will be run after going to that
+    directory.
+
+    If output is True, the stdout/stderr will be returned as a string.
+
     Avoid calling this function in favor of specific command function
     '''
     out = []
 
     # Convert to list if given a string
     if type(cmd) == type(""):
+        cmd = cmd.strip()
         cmds = cmd.split()
         if len(cmds) > 1: cmd = cmds
 
-    log.info('running: %s'%cmd)
+    if not env: env = os.environ
+
     from subprocess import Popen, PIPE, STDOUT
 
     if dir: fs.goto(dir)
+
+    log.info('running: "%s" in %s'%(cmd,os.getcwd()))
+
+    # Must update this explicitly since env is not tied to this
+    # application's env.
+    env['PWD'] = os.getcwd()
 
     # Start the command
     try:

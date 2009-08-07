@@ -5,7 +5,7 @@ repositories.
 '''
 
 from util import log
-from fs import goto, goback
+import fs 
 import os
 
 def get_git(scheme,url,target,overwrite,tag):
@@ -18,7 +18,7 @@ def get_git(scheme,url,target,overwrite,tag):
         else: giturl = url[4:]
         git.clone(giturl,target)
 
-    goto(target)
+    fs.goto(target)
     git.fetch()
     out = git.branch()
     for line in out.split('\n'):
@@ -29,7 +29,7 @@ def get_git(scheme,url,target,overwrite,tag):
     if out != tag:
         git.checkout(tag,tag)
     git.pull()
-    goback()
+    fs.goback()
     return
 
 def get_http_ftp(what,url,target,overwrite):
@@ -62,6 +62,7 @@ def get_http_ftp(what,url,target,overwrite):
         raise IOError,'Failed to get '+url
 
 
+    fs.assure(os.path.dirname(target))
     targetfp = open(target,"w")
     shutil.copyfileobj(res,targetfp)
 
@@ -109,7 +110,7 @@ def get(url,target,overwrite=False,tag=None):
     if urlp[0] == 'http' or urlp[0] == 'ftp':
         return get_http_ftp(urlp[0],url,target,overwrite)
     scheme = urlp[0].split('+')
-    print urlp,scheme
+    #print urlp,scheme
     if urlp[0] == 'git' or scheme[0] == 'git':
         return get_git(scheme,url,target,overwrite,tag)
 

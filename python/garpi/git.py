@@ -5,9 +5,12 @@ Thin functional wrapper over the git programs
 '''
 
 from command import cmd
+import os
 
 def clone(url,target):
-    return cmd('git clone %s %s'%(url,target),output=True)
+    ret = []
+    ret.append(cmd('git clone %s %s'%(url,target),output=True))
+    return '\n'.join(ret)
 
 def fetch():
     return cmd('git fetch',output=True)
@@ -23,3 +26,24 @@ def pull():
 
 def branch():
     return cmd('git branch',output=True)
+
+def submodule(rest):
+    return cmd('git submodule %s'%rest,output=True)
+
+def branches():
+    lbranches = []
+    rbranches = []
+    branches = cmd('git branch -a',output=True).split('\n')
+
+    for branch in branches:
+        branch = branch.strip()
+        if not branch: continue
+        if branch[0] == '*': branch = branch[2:]
+        if '/' in branch:
+            rbranches.append(branch)
+        else:
+            lbranches.append(branch)
+        continue
+
+    return (lbranches,rbranches)
+

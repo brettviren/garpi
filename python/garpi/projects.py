@@ -2,20 +2,24 @@
 States handling projects
 '''
 
-from util import log, cmd, source2env
+from util import log
 from exception import CommandFailure
 import os
 
 class Project:
-    def __init__(self,garpi,name):
-        self.garpi = garpi
+    def __init__(self,name):
         self.name = name
         self.NAME = name.upper()
         return
 
     def get_config(self,what):
         'Get the PROJECT_WHAT config from the project_PROJECT section'
-        return self.garpi.cfg.get('project_'+self.name,self.name + '_' + what)
+        from config import cli
+        return cli.file.get('project_'+self.name,self.name + '_' + what)
+
+    def proj_dir(self):
+        import fs
+        return fs.projects() + '/' + self.name
 
     def url(self): return self.get_config('url')
     def tag(self): return self.get_config('tag')
@@ -30,9 +34,12 @@ class Project:
         a side effect the program will be in the projects directory
         that contains the downloaded project'''
         log.info(self.name +' download')
-        projdir = self.garpi.go.projects()
+        import fs
+        projdir = fs.projects()
+        fs.goto(projdir)
         from get import get
         get(self.url(),self.name,True,tag=self.tag())
+        fs.goback
         return
         
     def env(self):
@@ -41,14 +48,18 @@ class Project:
         projects/setup.sh followed by the setup.sh in the release
         package.  As a side effect, the program is left in the project
         relaease package's cmt sub directory.'''
-        projdir = self.garpi.go.projects()
-        env1 = source2env('setup.sh')
+        from command import source
+        import fs
+        env1 = source('setup.sh',dir=fs.projects())
         relpkg = self.rel_pkg()
-        if not relpkg: return env1
-        self.garpi.go.to(relpkg + '/cmt')
-        if not os.path.exists('setup.sh'):
-            cmd('cmt config',env1)
-        env2 = source2env('setup.sh')
+        if not relpkg: 
+            return env1
+        cmtdir = self.proj_dir() + '/' + relpkg + '/cmt'
+        import cmt
+        if not os.path.exists(cmtdir+'/setup.sh'):
+            cmt.cmt('config',extra_env=env1,dir=cmtdir)
+            pass
+        env2 = source('setup.sh',dir=cmtdir)
         env1.update(env2)
         return env1
 

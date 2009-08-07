@@ -57,7 +57,8 @@ class CommandLineInterface:
         # fix up options
         if self.opts.base_directory[0] != '/': 
             self.opts.base_directory = os.getcwd() + '/' + self.opts.base_directory
-        
+        if self.opts.log_file[0] != '/':
+            self.opts.log_file = self.opts.base_directory + '/' + self.opts.log_file
 
         # Get defaults 
         from ConfigParser import SafeConfigParser

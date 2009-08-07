@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 
 def fake_argv():
+    'Force argv to be some value for testing into /tmp'
     import sys
     old_argv = sys.argv
-    sys.argv = ['/usr/bin/python','-n','test-release','-b','/tmp/test-install']
+    sys.argv = ['/usr/bin/python',
+                '-n','test-release',
+                '-b','/tmp/test-install',
+                '-l','test.log']
     from garpi.config import cli
     sys.argv = old_argv
     return cli
- 
 
 def test_import():
     'Do command some line options and config parsing'
