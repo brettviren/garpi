@@ -7,6 +7,19 @@ def test_get_gaudi():
     gaudi = Gaudi()
     gaudi.download()
 
+def test_externals():
+    'Test finding the externals'
+    from garpi.gaudi import Gaudi
+    gaudi = Gaudi()
+    exclusions = ['GaudiPoolDb','GaudiGridSvc',
+                  'HbookCnv','RootHistCnv']
+    externs = gaudi.externals(exclusions)
+    for name,use in externs.iteritems():
+        print str(use)
+        assert name not in exclusions, name+' was supposed to be excluded'
+        #assert use.project == 'lcgcmt', 'LCG_Interface package from Unkown project: '+use.project
+        #assert use.directory == 'LCG_Interfaces', 'Unknown directory: '+use.directory
 
 if '__main__' == __name__:
-    test_get_gaudi()
+    #test_get_gaudi()
+    test_externals()

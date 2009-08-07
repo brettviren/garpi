@@ -22,6 +22,9 @@ def test_get():
 def test_update():
     test_get()
     
+def test_setup():
+    'Add setup scripts'
+
 def test_env():
     env = lcgcmt.env()
 
@@ -38,11 +41,16 @@ def test_uses():
     for use in uses:
         print str(use)
     
+def test_cmtconfig():
+    cfg = lcgcmt.cmtconfig()
+    print cfg
     
 if '__main__' == __name__:
     test_make()
-    test_get()
-    test_update()
-    test_env()
-    test_reachable_packages()
-    test_uses()
+    # test_get()
+    # test_update()
+    # test_setup()
+    # test_env()
+    # test_reachable_packages()
+    # test_uses()
+    test_cmtconfig()

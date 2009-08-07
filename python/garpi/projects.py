@@ -19,7 +19,7 @@ class Project:
 
     def proj_dir(self):
         import fs
-        return fs.projects() + '/' + self.name
+        return os.path.join(fs.projects(), self.name)
 
     def url(self): return self.get_config('url')
     def tag(self): return self.get_config('tag')
@@ -54,7 +54,7 @@ class Project:
         relpkg = self.rel_pkg()
         if not relpkg: 
             return env1
-        cmtdir = self.proj_dir() + '/' + relpkg + '/cmt'
+        cmtdir = os.path.join(self.proj_dir(),relpkg,'/cmt')
         import cmt
         if not os.path.exists(cmtdir+'/setup.sh'):
             cmt.cmt('config',extra_env=env1,dir=cmtdir)
@@ -70,7 +70,7 @@ class Project:
             err = 'Project %s has no release package defined'%self.name
             log.warning(err)
             raise CommandFailure,err
-        relpkgcmt = self.garpi.dir.projects()+'/'+relpkg+'/cmt'
+        relpkgcmt = os.path.join(self.garpi.dir.projects(),relpkg,'/cmt')
         if not os.path.exists(relpkgcmt):
             err = 'Project %s has release package defined, but no dir: %s'%(self.name,relpkgcmt)
             log.warning(err)
@@ -87,7 +87,7 @@ class Project:
         self.cmd_inrel('cmt br make %s'%target)
 
         
-    def init_project(self,deps):
+    def init_project(self,deps=[]):
         import fs
         fs.assure(self.proj_dir()+'/cmt')
         fp = open(self.proj_dir()+'/cmt/project.cmt','w')
@@ -101,4 +101,38 @@ setup_strategy root\n''')
         fp.close()
         return
 
-
+    def externals(self,exclusions = []):
+        '''
+        Start in the release package, find all the uses that are under
+        LCG_Interface, and thus external.  Any package in the
+        exclusions list and its dependencies will be excluded from the
+        results.  Result dictionary mapping a package name to a
+        cmt.UsedPackage object.
+        '''
+        import cmt
+        uses = cmt.get_uses(os.path.join(self.proj_dir(),self.rel_pkg()))
+        reduced = {}
+        # Convert to name keyed dict
+        for use in uses:
+            #if use.project != 'lcgcmt': continue
+            #if use.directory != 'LCG_Interfaces': continue
+            reduced[use.name] = use
+            continue
+        # Trim top level uses
+        for kill in exclusions:
+            if reduced.has_key(kill):
+                del reduced[kill]
+            continue
+        # Trim dependencies
+        ret = {}
+        for name,used in reduced.iteritems():
+            newuses=[]
+            for dep in used.uses:
+                #if dep.project != 'lcgcmt': continue
+                #if dep.directory != 'LCG_Interfaces': continue
+                if dep.name not in exclusions: newuses.append(dep)
+            used.uses = newuses
+            ret[name] = used
+        return reduced
+        
+                            

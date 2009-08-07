@@ -46,13 +46,25 @@ def unpack():
     untar(tgz())
     return target
 
-def env():
-    '''Return the environment after sourceing CMT's setup.sh.  This
-    will fail if called before cmt.build() has been run.'''
+def env(pkgdir = None):
+    '''Return the environment after sourceing CMT's setup.sh.  If
+    pkgdir is given additional environment from the additional package
+    level setup will be added.  This can be a single package directory
+    or a list of ones. This function will fail if called before
+    cmt.build() has been run.'''
     from command import source
     environ = source('./setup.sh',dir=srcdir()+'/mgr')
+    if not pkgdir:
+        return environ
+    if type(pkgdir) == type(""): pkgdir = [pkgdir]
+    for pdir in pkgdir:
+        if pdir[-4:] != '/cmt':
+            pdir += '/cmt'
+        if not os.path.exists(os.path.join(pdir,'setup.sh')):
+            cmt('config',dir=pdir)
+        environ.update(source('./setup.sh',dir=pdir))
     return environ
-            
+
 
 def build():
     'Build CMT in previously unpacked cmt.srcdir().'
@@ -98,9 +110,9 @@ def cmt(cmdstr='',extra_env={},dir=None,output=False):
     if extra_env: environ.update(extra_env)
     return cmd('cmt '+cmdstr,env=environ,dir=dir,output=output)
 
-def show(what,extra_env={},delim = '='):
+def show(what,extra_env={},delim = '=',dir=None):
     'Run "cmt show what".  Return dictionary of result'
-    res = cmt('show '+what,extra_env = extra_env, output = True)
+    res = cmt('show '+what,extra_env = extra_env, dir=dir, output = True)
     ret = {}
     for line in res.split('\n'):
         line = line.strip()
@@ -112,22 +124,26 @@ def show(what,extra_env={},delim = '='):
         continue
     return ret
 
-def macros(extra_env={}):
+def macros(extra_env={},dir=None):
     '''Return all defined macros and their definitions.  If any
     extra_env is given it will be added to what is needed just to
     setup cmt.'''
-    return show('macros',extra_env=extra_env)
+    return show('macros',extra_env=extra_env,dir=dir)
 
-def sets(extra_env={}):
+def macro(what,extra_env={},dir=None):
+    cmdstr = 'show macro_value '+what
+    return cmt(cmdstr,extra_env=extra_env,dir=dir,output=True)
+
+def sets(extra_env={},dir=None):
     '''Return all defined sets and their definitions.  If any
     extra_env is given it will be added to what is needed just to
     setup cmt.'''
-    return show('sets',extra_env=extra_env)
+    return show('sets',extra_env=extra_env,dir=dir)
 
-def tags(extra_env={}):
+def tags(extra_env={},dir=None):
     '''Return all defined tags and their sources.  If any extra_env is
     given it will be added to what is needed just to setup cmt.'''
-    return show('tags',extra_env=extra_env,delim=' ')
+    return show('tags',extra_env=extra_env,delim=' ',dir=dir)
 
 def parse_project_file(file):
     fp = open(file)
