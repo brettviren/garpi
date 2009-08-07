@@ -87,4 +87,18 @@ class Project:
         self.cmd_inrel('cmt br make %s'%target)
 
         
-        
+    def init_project(self,deps):
+        import fs
+        fs.assure(self.proj_dir()+'/cmt')
+        fp = open(self.proj_dir()+'/cmt/project.cmt','w')
+        fp.write('project %s\n'%self.name)
+        for dep in deps: fp.write('use %s\n'%dep)
+        fp.write('''
+build_strategy with_installarea
+structure_strategy with_no_version_directory
+setup_strategy root\n''')
+        fp.write('container %s'%self.rel_pkg())
+        fp.close()
+        return
+
+

@@ -200,7 +200,14 @@ def get_uses(pkg_dir):
     uses = [UsedPackage(this_pkg,0,False,"",this_ver,this_project)]
     pack2proj = {this_pkg:this_project}
 
-    res = cmt("show uses",dir=path,output=True)
+    if not os.path.exists(path+'/setup.sh'):
+        cmt("config",dir=path)
+
+    from command import source, cmd
+    extra_env = source('setup.sh',env=env(),dir=path)
+
+    res = cmd("cmt show uses",env=extra_env,dir=path,output=True)
+
     for line in res.split('\n'):
         line = line.strip()
         words = line.split(' ')

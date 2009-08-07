@@ -21,11 +21,17 @@ class Gaudi(Project):
         # Get release package
         self.checkout(self.rel_pkg(),self.tag())
         
+        self.init_project(['lcgcmt'])
+
         # Get versions
         import cmt
         uses = cmt.get_uses(self.proj_dir()+'/'+self.rel_pkg())
         for use in uses:
+            print 'use:',use.name,use.project,use.directory,use.version
             if use.project == 'gaudi' and use.directory == '':
+                if '*' in use.version:
+                    log.info('Skipping %s %s'%(use.name,use.version))
+                    continue
                 self.checkout(use.name,use.version)
 
     def clone(self,url):
@@ -58,3 +64,4 @@ class Gaudi(Project):
 
         fs.goback()
         return
+

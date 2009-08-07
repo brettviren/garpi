@@ -30,12 +30,17 @@ def source(filename,env=None,dir=None,output=False):
     dictionary and a string containing any output from the source
     command.'''
 
+
     if dir: fs.goto(dir)
+
+    log.info('sourcing %s in %s'%(filename,os.getcwd()))
 
     magic='magic%dmagic'%os.getpid()
     cmdstr = "source %s && echo '%s' && env"%(filename,magic)
     import commands
+
     ret,cmdres = commands.getstatusoutput(cmdstr)
+
     if ret != 0:
         from exception import CommandFailure
         err = 'Failed to source "%s" from %s:\n%s' \
