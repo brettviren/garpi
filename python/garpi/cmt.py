@@ -50,9 +50,7 @@ def env():
     '''Return the environment after sourceing CMT's setup.sh.  This
     will fail if called before cmt.build() has been run.'''
     from command import source
-    fs.goto(srcdir() + '/mgr/')
-    environ = source('setup.sh')
-    fs.goback()
+    environ = source('./setup.sh',dir=srcdir()+'/mgr')
     return environ
             
 
@@ -204,7 +202,7 @@ def get_uses(pkg_dir):
         cmt("config",dir=path)
 
     from command import source, cmd
-    extra_env = source('setup.sh',env=env(),dir=path)
+    extra_env = source('./setup.sh',env=env(),dir=path)
 
     res = cmd("cmt show uses",env=extra_env,dir=path,output=True)
 

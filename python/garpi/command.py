@@ -36,7 +36,7 @@ def source(filename,env=None,dir=None,output=False):
     log.info('sourcing %s in %s'%(filename,os.getcwd()))
 
     magic='magic%dmagic'%os.getpid()
-    cmdstr = "source %s && echo '%s' && env"%(filename,magic)
+    cmdstr = ". %s && echo '%s' && env"%(filename,magic)
     import commands
 
     ret,cmdres = commands.getstatusoutput(cmdstr)

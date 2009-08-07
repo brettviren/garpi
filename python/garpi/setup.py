@@ -11,7 +11,7 @@ def dump_sh(base):
 base=%s
 for thing in $base/*.sh 
 do
-    source $thing
+    . $thing
 done
 '''%base)
     sh.close()

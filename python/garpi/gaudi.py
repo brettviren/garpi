@@ -27,7 +27,7 @@ class Gaudi(Project):
         import cmt
         uses = cmt.get_uses(self.proj_dir()+'/'+self.rel_pkg())
         for use in uses:
-            print 'use:',use.name,use.project,use.directory,use.version
+            #print 'use:',use.name,use.project,use.directory,use.version
             if use.project == 'gaudi' and use.directory == '':
                 if '*' in use.version:
                     log.info('Skipping %s %s'%(use.name,use.version))

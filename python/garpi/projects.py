@@ -50,7 +50,7 @@ class Project:
         relaease package's cmt sub directory.'''
         from command import source
         import fs
-        env1 = source('setup.sh',dir=fs.projects())
+        env1 = source('./setup.sh',dir=fs.projects())
         relpkg = self.rel_pkg()
         if not relpkg: 
             return env1
@@ -59,7 +59,7 @@ class Project:
         if not os.path.exists(cmtdir+'/setup.sh'):
             cmt.cmt('config',extra_env=env1,dir=cmtdir)
             pass
-        env2 = source('setup.sh',dir=cmtdir)
+        env2 = source('./setup.sh',dir=cmtdir)
         env1.update(env2)
         return env1
 
