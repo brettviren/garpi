@@ -70,12 +70,13 @@ def build():
     'Build CMT in previously unpacked cmt.srcdir().'
     log.info('building cmt')
 
-    target = srcdir() + '/mgr/setup.sh'
     fs.goto(srcdir() + '/mgr/')
 
     from command import cmd,make,source
-    if not os.path.exists(target):
-        cmd('./INSTALL')
+
+    # always run this in case user does something silly like move the
+    # installation somewhere else 
+    cmd('./INSTALL')
 
     environ = env()
     cmtexe = '%s/%s/cmt'%(srcdir(),environ['CMTCONFIG'])
@@ -90,7 +91,8 @@ def setup():
     setup = srcdir() + '/mgr/setup'
     fs.goto(fs.setup())
     def do_link(ext):
-        if os.path.exists('00_cmt'+ext): return
+        if os.path.exists('00_cmt'+ext): 
+            os.remove('00_cmt'+ext)
         os.symlink(setup+ext,'00_cmt'+ext)
     for ext in ['.sh','.csh']:
         do_link(ext)
@@ -218,13 +220,17 @@ def get_uses(pkg_dir):
         cmt("config",dir=path)
 
     from command import source, cmd
-    extra_env = source('./setup.sh',env=env(),dir=path)
+    extra_env = source('./setup.sh',env=env(),dir=fs.projects())
+    extra_env = source('./setup.sh',env=extra_env,dir=path)
+
+    #for kv in extra_env.iteritems(): print '"%s" --> "%s"'%kv
 
     res = cmd("cmt show uses",env=extra_env,dir=path,output=True)
 
     for line in res.split('\n'):
         line = line.strip()
         words = line.split(' ')
+        #print ' '.join(map(lambda x: '"%s"'%x, words))
         if len(words) == 1: continue
         if line[0] != '#': 
             pack = words[1]
