@@ -42,7 +42,7 @@ def unpack():
     if os.path.exists(target):
         log.info('CMT appears to already be unpacked in %s'%(target))
         return target
-    fs.goto(fs.external())
+    fs.goto(fs.external(),True)
     untar(tgz())
     return target
 
@@ -53,7 +53,7 @@ def env(pkgdir = None):
     or a list of ones. This function will fail if called before
     cmt.build() has been run.'''
     from command import source
-    environ = source('./setup.sh',dir=srcdir()+'/mgr')
+    environ = source('./setup.sh',dir=os.path.join(srcdir(),'mgr'))
     if not pkgdir:
         return environ
     if type(pkgdir) == type(""): pkgdir = [pkgdir]
@@ -70,7 +70,7 @@ def build():
     'Build CMT in previously unpacked cmt.srcdir().'
     log.info('building cmt')
 
-    fs.goto(srcdir() + '/mgr/')
+    fs.goto(os.path.join(srcdir(),'mgr/'))
 
     from command import cmd,make,source
 

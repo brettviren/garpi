@@ -47,7 +47,7 @@ def assure(theDir):
     os.makedirs(theDir)
     return True
 
-def goto(theDir,mkdir=True):
+def goto(theDir,mkdir=False):
     '''Move the application to the given directory.  If mkdir is true,
     any missing path segments will be created.'''
     if not os.path.exists(theDir):

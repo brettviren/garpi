@@ -41,11 +41,11 @@ class Gaudi(Project):
             log.info('Directory already exists, skipping clone to: %s'%target)
             return
 
-        fs.goto(fs.projects())
+        fs.goto(fs.projects(),True)
         git.clone(url,'gaudi')
         fs.goback()
 
-        fs.goto(fs.projects()+'/gaudi')
+        fs.goto(os.path.join(fs.projects(),'gaudi'),True)
         git.submodule('init')
         git.submodule('update')
         fs.goback()
@@ -54,7 +54,7 @@ class Gaudi(Project):
 
     def checkout(self,pkg,tag):
         import fs,git
-        fs.goto(fs.projects()+'/gaudi/'+pkg)
+        fs.goto(os.path.join(fs.projects(),'gaudi',pkg))
 
         lbranches,rbranches = git.branches()
         if tag in lbranches:

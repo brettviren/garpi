@@ -36,7 +36,7 @@ class Project:
         log.info(self.name +' download')
         import fs
         projdir = fs.projects()
-        fs.goto(projdir)
+        fs.goto(projdir,True)
         from get import get
         get(self.url(),self.name,True,tag=self.tag())
         fs.goback
