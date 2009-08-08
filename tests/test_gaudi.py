@@ -14,6 +14,7 @@ def test_list_externals():
     exclusions = ['GaudiPoolDb','GaudiGridSvc',
                   'HbookCnv','RootHistCnv','PCRE']
     externs = gaudi.externals(exclusions)
+    assert externs, 'Got no externals for gaudi'
     for pkg in externs:
         print pkg
         assert pkg not in exclusions, pkg+' was supposed to be excluded'

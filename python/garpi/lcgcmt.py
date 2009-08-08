@@ -43,16 +43,19 @@ class Lcgcmt(Project):
         # Bourne Shell
         sh = open(os.path.join(base,'10_lcgcmt.sh'),'w')
         sh.write('''#!/bin/sh
-CMTPROJECTPATH=%s
+SITEROOT=%s
+export SITEROOT
+CMTPROJECTPATH=$SITEROOT/%s
 export CMTPROJECTPATH
-        '''%fs.projects())
+        '''%(fs.base(),fs.name()))
         sh.close()
 
         # C(rappy) Shell
         csh = open(os.path.join(base,'10_lcgcmt.csh'),'w')
         csh.write('''#!/bin/csh
+setenv SITEROOT %s
 setenv CMTPROJECTPATH %s
-        '''%fs.projects())
+        '''%(fs.base(),fs.name()))
         csh.close()
         return
 
@@ -69,6 +72,34 @@ setenv CMTPROJECTPATH %s
             continue
         return None
 
+    def _get_package(self,env,dir):
+        'Get the package source tar file'
+        import cmt
+        cmt.cmt('pkg_get',extra_env=env,dir=dir)
+
     def build_package(self,pkg):
+        '''
+    for cmd in get config make install
+    do
+        echo "$pkg: running \"cmt pkg_$cmd\""
+        cmt pkg_$cmd
+        check_cmd
+    done
+        '''
+        dir = self.builder_directory(pkg)
+        from exception import InconsistentState
+        if not dir: InconsistentState('No builder directory for "%s"'%pkg)
+        
+        dir += '/cmt'
+
+        import fs
+        fs.goto(dir)
+
+        import cmt
+        env = cmt.env(dir)
+        
+        self._get_package(env,dir)
+        
+        fs.goback()
         return
 

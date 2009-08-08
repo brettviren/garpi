@@ -13,9 +13,9 @@ class Project:
         return
 
     def get_config(self,what):
-        'Get the PROJECT_WHAT config from the project_PROJECT section'
+        'Get the WHAT config from the project_PROJECT section'
         from config import cli
-        return cli.file.get('project_'+self.name,self.name + '_' + what)
+        return cli.file.get('project_'+self.name,what)
 
     def proj_dir(self):
         import fs
@@ -54,7 +54,7 @@ class Project:
         relpkg = self.rel_pkg()
         if not relpkg: 
             return env1
-        cmtdir = os.path.join(self.proj_dir(),relpkg,'/cmt')
+        cmtdir = os.path.join(self.proj_dir(),relpkg,'cmt')
         import cmt
         if not os.path.exists(cmtdir+'/setup.sh'):
             cmt.cmt('config',extra_env=env1,dir=cmtdir)

@@ -116,6 +116,8 @@ def cmd(cmd,env=None,dir=None,output=False):
     # application's env.
     env['PWD'] = os.getcwd()
 
+    #log.info('\n'.join(map(lambda x: '"%s" --> "%s"'%x, env.iteritems())))
+
     # Start the command
     try:
         proc = Popen(cmd,stdout=PIPE,stderr=STDOUT,env=env)

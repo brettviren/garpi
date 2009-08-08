@@ -46,21 +46,22 @@ def test_cmtconfig():
     cfg = lcgcmt.cmtconfig()
     print cfg
     
+pkgs = [
+    "Python",
+    "GCCXML",
+    "ROOT",
+    "Reflex",
+    "Boost",
+    "CppUnit",
+    "CLHEP",
+    "AIDA",
+    "uuid",
+    "XercesC",
+    "GSL",
+    "HepPDT",
+    ]
+
 def test_builder_finder():
-    pkgs = [
-        "Python",
-        "GCCXML",
-        "ROOT",
-        "Reflex",
-        "Boost",
-        "CppUnit",
-        "CLHEP",
-        "AIDA",
-        "uuid",
-        "XercesC",
-        "GSL",
-        "HepPDT",
-        ]
     for pkg in pkgs:
         builddir = lcgcmt.builder_directory(pkg)
         if pkg == "Reflex":
@@ -69,13 +70,17 @@ def test_builder_finder():
             assert builddir,'No build directory for "%s"'%pkg
         print '%s built by %s'%(pkg,builddir)
 
+def test_build_packages():
+    lcgcmt.build_package('AIDA')
+
 if '__main__' == __name__:
     test_make()
     test_get()
-    # test_update()
+    test_update()
     test_init()
-    # test_env()
-    # test_reachable_packages()
-    # test_uses()
+    test_env()
+    test_reachable_packages()
+    test_uses()
     test_cmtconfig()
     test_builder_finder()
+    test_build_packages()

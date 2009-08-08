@@ -10,23 +10,32 @@ directories to the applicable function from the "command" module.
 
 '''
 
+import os
+
+def base():
+    'Return the absolute path to the base directory'
+    from config import cli
+    return cli.opts.base_directory
+    
+def name():
+    'Return the name of the release being built'
+    from config import cli
+    return cli.opts.name
+
 def external():
     'Return the absolute path to the directory holding the external packages'
-    from config import cli
-    return cli.opts.base_directory + '/external'
+    return os.path.join(base(),'external')
 
 def projects():
     'Return the absolute path to the directory holding the projects'
-    from config import cli
-    return cli.opts.base_directory + '/' + cli.opts.name
+    return os.path.join(base(), name())
 
 def setup():
     'Return the absolute path to the directory holding the setup scripts'
-    return projects() + '/setup'
+    return os.path.join(projects(), 'setup')
 
 from util import log
 from exception import CommandFailure
-import os
 
 
 dirStack = []
@@ -49,7 +58,7 @@ def goto(theDir,mkdir=True):
 
     dirStack.append(os.getcwd())
     os.chdir(theDir)
-    log.info('goto %s'%theDir)
+    log.debug('goto %s'%theDir)
     return dirStack
     
 def goback():
@@ -59,5 +68,5 @@ def goback():
         return
     theDir = dirStack.pop()
     os.chdir(theDir)
-    log.info('goback to %s'%theDir)
+    log.debug('goback to %s'%theDir)
     return theDir
