@@ -27,7 +27,11 @@ def get_git(scheme,url,target,overwrite,tag):
         break
     print out,tag
     if out != tag:
-        git.checkout(tag,tag)
+        lbranches,rbranches = git.branches()
+        if tag in lbranches:
+            git.checkout(tag)
+        else:
+            git.checkout('origin/'+tag,tag)
     git.pull()
     fs.goback()
     return

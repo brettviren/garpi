@@ -71,7 +71,7 @@ def test_builder_finder():
 
 if '__main__' == __name__:
     test_make()
-    # test_get()
+    test_get()
     # test_update()
     test_init()
     # test_env()
