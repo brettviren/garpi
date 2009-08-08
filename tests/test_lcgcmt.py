@@ -22,8 +22,9 @@ def test_get():
 def test_update():
     test_get()
     
-def test_setup():
+def test_init():
     'Add setup scripts'
+    lcgcmt.init_project()
 
 def test_env():
     env = lcgcmt.env()
@@ -45,12 +46,36 @@ def test_cmtconfig():
     cfg = lcgcmt.cmtconfig()
     print cfg
     
+def test_builder_finder():
+    pkgs = [
+        "Python",
+        "GCCXML",
+        "ROOT",
+        "Reflex",
+        "Boost",
+        "CppUnit",
+        "CLHEP",
+        "AIDA",
+        "uuid",
+        "XercesC",
+        "GSL",
+        "HepPDT",
+        ]
+    for pkg in pkgs:
+        builddir = lcgcmt.builder_directory(pkg)
+        if pkg == "Reflex":
+            assert builddir is None, "Reflex shouldn't have a builder"
+        else:
+            assert builddir,'No build directory for "%s"'%pkg
+        print '%s built by %s'%(pkg,builddir)
+
 if '__main__' == __name__:
     test_make()
     # test_get()
     # test_update()
-    # test_setup()
+    test_init()
     # test_env()
     # test_reachable_packages()
     # test_uses()
     test_cmtconfig()
+    test_builder_finder()
