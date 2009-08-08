@@ -111,28 +111,41 @@ setup_strategy root\n''')
         '''
         import cmt
         uses = cmt.get_uses(os.path.join(self.proj_dir(),self.rel_pkg()))
-        reduced = {}
-        # Convert to name keyed dict
+
+        # Categorize the packages as being directly used or a
+        # potential extern
+        myuses = []
+        mynames = []
         for use in uses:
-            #if use.project != 'lcgcmt': continue
-            #if use.directory != 'LCG_Interfaces': continue
-            reduced[use.name] = use
+            if not use.project == self.name: continue
+            if use.name in exclusions:
+                log.info('Excluding "%s"'%use.name)
+                continue
+            if use.name in mynames: 
+                continue
+            log.info('Including "%s"'%use.name)
+            myuses.append(use)
+            mynames.append(use.name)
             continue
-        # Trim top level uses
-        for kill in exclusions:
-            if reduced.has_key(kill):
-                del reduced[kill]
-            continue
-        # Trim dependencies
-        ret = {}
-        for name,used in reduced.iteritems():
-            newuses=[]
-            for dep in used.uses:
-                #if dep.project != 'lcgcmt': continue
-                #if dep.directory != 'LCG_Interfaces': continue
-                if dep.name not in exclusions: newuses.append(dep)
-            used.uses = newuses
-            ret[name] = used
-        return reduced
+        
+        def deps(use,names):
+            for dep in use.uses:
+                if dep.project != 'lcgcmt' \
+                        or dep.directory != 'LCG_Interfaces':
+                    continue
+                if dep.name in exclusions:
+                    log.warn('Skipping excluded pkg "%s" needed by "%s"'%(dep.name,use.name))
+                    continue
+                deps(dep,names)
+                if dep.name not in names:
+                    names.append(dep.name)
+                    log.info('Adding "%s" needed by "%s"'%(dep.name,use.name))
+                continue
+            return
+
+        names = []
+        for use in myuses:
+            deps(use,names)
+        return names
         
                             
