@@ -47,6 +47,8 @@ SITEROOT=%s
 export SITEROOT
 CMTPROJECTPATH=$SITEROOT/%s
 export CMTPROJECTPATH
+CMTEXTRATAGS=garpi
+export CMTEXTRATAGS
         '''%(fs.base(),fs.name()))
         sh.close()
 
@@ -55,6 +57,7 @@ export CMTPROJECTPATH
         csh.write('''#!/bin/csh
 setenv SITEROOT %s
 setenv CMTPROJECTPATH %s
+setenv CMTEXTRATAGS garpi
         '''%(fs.base(),fs.name()))
         csh.close()
         return
@@ -72,11 +75,6 @@ setenv CMTPROJECTPATH %s
             continue
         return None
 
-    def _get_package(self,env,dir):
-        'Get the package source tar file'
-        import cmt
-        cmt.cmt('pkg_get',extra_env=env,dir=dir)
-
     def build_package(self,pkg):
         '''
     for cmd in get config make install
@@ -86,19 +84,26 @@ setenv CMTPROJECTPATH %s
         check_cmd
     done
         '''
+        import fs
+        fs.assure(os.path.join(fs.external(),'tarFiles'))
+        fs.assure(os.path.join(fs.external(),'build/LCG'))
+
         dir = self.builder_directory(pkg)
         from exception import InconsistentState
         if not dir: InconsistentState('No builder directory for "%s"'%pkg)
         
-        dir += '/cmt'
+        pkg = os.path.basename(dir)
+        cmtdir = os.path.join(dir,'cmt')
 
         import fs
-        fs.goto(dir)
+        fs.goto(cmtdir)
 
-        import cmt
-        env = cmt.env(dir)
+        env = self.env(os.path.join('LCG_Builders',pkg))
         
-        self._get_package(env,dir)
+        import cmt
+        for what in ['get','config','make','install']:
+            cmt.cmt('pkg_%s'%what,extra_env=env,dir=cmtdir)
+
         
         fs.goback()
         return

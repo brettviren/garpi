@@ -42,19 +42,17 @@ class Project:
         fs.goback
         return
         
-    def env(self):
+    def env(self,rel_dir=None):
         '''Return dictionary of env for the given project.  It conists
         of the environment after sourcing the top level
         projects/setup.sh followed by the setup.sh in the release
-        package.  As a side effect, the program is left in the project
-        relaease package's cmt sub directory.'''
+        package.'''
         from command import source
         import fs
         env1 = source('./setup.sh',dir=fs.projects())
-        relpkg = self.rel_pkg()
-        if not relpkg: 
-            return env1
-        cmtdir = os.path.join(self.proj_dir(),relpkg,'cmt')
+        if not rel_dir: rel_dir = self.rel_pkg()
+        if not rel_dir: return env1
+        cmtdir = os.path.join(self.proj_dir(),rel_dir,'cmt')
         import cmt
         if not os.path.exists(cmtdir+'/setup.sh'):
             cmt.cmt('config',extra_env=env1,dir=cmtdir)

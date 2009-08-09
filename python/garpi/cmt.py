@@ -205,18 +205,18 @@ def package_project(pkg_dir,extra_env={}):
 def get_uses(pkg_dir):
     'Return the packages that the package at the given directory uses'
     
-    path = pkg_dir + '/cmt'
+    path = os.path.join(pkg_dir,'cmt')
     this_pkg = os.path.basename(pkg_dir)
 
-    this_ver = package_version(this_pkg)
-    this_project = package_project(this_pkg)
+    this_ver = package_version(pkg_dir)
+    this_project = package_project(pkg_dir)
 
     log.debug("pkg =",this_pkg,"ver =",this_ver,"project =",this_project)
 
     uses = [UsedPackage(this_pkg,0,False,"",this_ver,this_project)]
     pack2proj = {this_pkg:this_project}
 
-    if not os.path.exists(path+'/setup.sh'):
+    if not os.path.exists(os.path.join(path,'setup.sh')):
         cmt("config",dir=path)
 
     from command import source, cmd

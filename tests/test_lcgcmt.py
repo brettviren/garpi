@@ -6,6 +6,7 @@ Test the lcgcmt module
 
 lcgcmt = None
 
+import os
 
 def test_make():
     global lcgcmt
@@ -16,7 +17,6 @@ def test_get():
     'Get the lcgcmt project'
     lcgcmt.download()
     from garpi import fs
-    import os
     assert os.path.exists(fs.projects()+'/lcgcmt/cmt/project.cmt')
 
 def test_update():
@@ -38,7 +38,9 @@ def test_reachable_packages():
 
 def test_uses():
     from garpi import cmt
-    uses = cmt.get_uses(lcgcmt.proj_dir() + '/LCG_Release')
+    dir = os.path.join(lcgcmt.proj_dir(),'LCG_Release')
+    #print 'Getting uses from %s'%dir
+    uses = cmt.get_uses(dir)
     for use in uses:
         print str(use)
     
@@ -71,16 +73,17 @@ def test_builder_finder():
         print '%s built by %s'%(pkg,builddir)
 
 def test_build_packages():
-    lcgcmt.build_package('AIDA')
+    #lcgcmt.build_package('AIDA')
+    lcgcmt.build_package('uuid')
 
 if '__main__' == __name__:
     test_make()
-    test_get()
-    test_update()
+    #test_get()
+    #test_update()
     test_init()
-    test_env()
-    test_reachable_packages()
-    test_uses()
+    # test_env()
+    # test_reachable_packages()
+    # test_uses()
     test_cmtconfig()
-    test_builder_finder()
+    # test_builder_finder()
     test_build_packages()
