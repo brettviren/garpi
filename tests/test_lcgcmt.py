@@ -91,6 +91,7 @@ def test_builder_finder():
     return
 
 def test_builder_externals():
+    global pkgs
     more_pkgs = lcgcmt.builder_externals(pkgs,exclusions=exclusions)
     for pkg in more_pkgs:
         builddir = lcgcmt.builder_directory(pkg)
@@ -100,6 +101,7 @@ def test_builder_externals():
             assert builddir,'No build directory for "%s"'%pkg
         print '%s built by %s'%(pkg,builddir)
         continue
+    pkgs = more_pkgs
     return
 
 def test_build_packages():
@@ -117,4 +119,4 @@ if '__main__' == __name__:
     #test_cmtconfig()
     #test_builder_finder()
     test_builder_externals()
-    #test_build_packages()
+    test_build_packages()

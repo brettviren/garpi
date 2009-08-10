@@ -125,6 +125,8 @@ setenv CMTEXTRATAGS garpi
         from exception import InconsistentState
         if not dir: InconsistentState('No builder directory for "%s"'%pkg)
         
+        print 'Building %s'%pkg
+
         pkg = os.path.basename(dir)
         cmtdir = os.path.join(dir,'cmt')
 
@@ -135,6 +137,7 @@ setenv CMTEXTRATAGS garpi
         
         import cmt
         for what in ['get','config','make','install']:
+            print '\t%s'%what
             cmt.cmt('pkg_%s'%what,extra_env=env,dir=cmtdir)
 
         
