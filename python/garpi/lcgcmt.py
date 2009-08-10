@@ -75,6 +75,39 @@ setenv CMTEXTRATAGS garpi
             continue
         return None
 
+    def builder_externals(self,pkgs,exclusions=[]):
+        '''Take an ordered list of LCG_Interface packages, return an
+        ordered list of LCG_Interface packages.  If an input package
+        has dependencies they will be inserted before the input
+        package name.'''
+        from util import log
+
+        ret = []
+        for pkg in pkgs:
+            builder_dir = self.builder_directory(pkg)
+            if not builder_dir:
+                log.warn('Unable to find builder directory for "%s"'%pkg)
+                continue
+            builder_pkg = os.path.basename(builder_dir)
+            rel_dir = os.path.join('LCG_Builders',builder_pkg)
+
+            externals = self.externals(package=rel_dir,exclusions=exclusions)
+            for ext in externals:
+
+                ext_dir = self.builder_directory(ext)
+                if not ext_dir:
+                    log.warn('Unable to find builder directory for "%s"'%ext)
+
+                if ext in ret: continue
+                ret.append(ext)
+                continue
+
+            if pkg not in ret:
+                ret.append(pkg)
+            continue
+
+        return ret
+
     def build_package(self,pkg):
         '''
     for cmd in get config make install

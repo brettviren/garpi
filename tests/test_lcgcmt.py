@@ -63,6 +63,22 @@ pkgs = [
     "HepPDT",
     ]
 
+# These need to become set in the config file
+exclusions = [
+    "fftw",
+    "vomsapic",
+    "globus",
+    "cgsigsoap",
+    "lcgdmcommon",
+    "lfc",
+    "gfal",
+    "CASTOR",
+    "dcache_client",
+    "oracle",
+    "mysql",
+    "Qt",
+    ]
+
 def test_builder_finder():
     for pkg in pkgs:
         builddir = lcgcmt.builder_directory(pkg)
@@ -71,10 +87,24 @@ def test_builder_finder():
         else:
             assert builddir,'No build directory for "%s"'%pkg
         print '%s built by %s'%(pkg,builddir)
+        continue
+    return
+
+def test_builder_externals():
+    more_pkgs = lcgcmt.builder_externals(pkgs,exclusions=exclusions)
+    for pkg in more_pkgs:
+        builddir = lcgcmt.builder_directory(pkg)
+        if pkg == "Reflex":
+            assert builddir is None, "Reflex shouldn't have a builder"
+        else:
+            assert builddir,'No build directory for "%s"'%pkg
+        print '%s built by %s'%(pkg,builddir)
+        continue
+    return
 
 def test_build_packages():
-    #lcgcmt.build_package('AIDA')
-    lcgcmt.build_package('uuid')
+    for pkg in pkgs:
+        lcgcmt.build_package(pkg)
 
 if '__main__' == __name__:
     test_make()
@@ -84,6 +114,7 @@ if '__main__' == __name__:
     # test_env()
     # test_reachable_packages()
     # test_uses()
-    test_cmtconfig()
-    # test_builder_finder()
-    test_build_packages()
+    #test_cmtconfig()
+    #test_builder_finder()
+    test_builder_externals()
+    #test_build_packages()

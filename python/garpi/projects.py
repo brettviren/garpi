@@ -99,16 +99,23 @@ setup_strategy root\n''')
         fp.close()
         return
 
-    def externals(self,exclusions = []):
+    def externals(self,package = None, exclusions = []):
         '''
-        Start in the release package, find all the uses that are under
-        LCG_Interface, and thus external.  Any package in the
-        exclusions list and its dependencies will be excluded from the
-        results.  Result dictionary mapping a package name to a
-        cmt.UsedPackage object.
+        Start in the given package else use this project's release
+        package, find all the uses that are under LCG_Interface, and
+        thus external.  Any package in the exclusions list and its
+        dependencies will be excluded from the results.  Return
+        ordered list of the package name.
         '''
+
+        if not package:
+            package = self.rel_pkg()
+        pkg_dir = os.path.join(self.proj_dir(),package)
+
         import cmt
-        uses = cmt.get_uses(os.path.join(self.proj_dir(),self.rel_pkg()))
+        uses = cmt.get_uses(pkg_dir)
+
+        #print 'Checking for uses in "%s"'%pkg_dir
 
         # Categorize the packages as being directly used or a
         # potential extern
@@ -128,6 +135,7 @@ setup_strategy root\n''')
         
         def deps(use,names):
             for dep in use.uses:
+                #print '"%s" uses "%s" [%s]'%(use.name,dep.name,str(dep))
                 if dep.project != 'lcgcmt' \
                         or dep.directory != 'LCG_Interfaces':
                     continue
@@ -139,6 +147,11 @@ setup_strategy root\n''')
                     names.append(dep.name)
                     log.info('Adding "%s" needed by "%s"'%(dep.name,use.name))
                 continue
+            if use.project == 'lcgcmt' \
+                    and use.directory == 'LCG_Interfaces' \
+                    and use.name not in names:
+                names.append(use.name)
+
             return
 
         names = []
