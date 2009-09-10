@@ -68,21 +68,27 @@ class Project:
             err = 'Project %s has no release package defined'%self.name
             log.warning(err)
             raise CommandFailure,err
-        relpkgcmt = os.path.join(self.garpi.dir.projects(),relpkg,'/cmt')
+        import fs
+        relpkgcmt = os.path.join(fs.projects(),self.name,relpkg,'cmt')
         if not os.path.exists(relpkgcmt):
             err = 'Project %s has release package defined, but no dir: %s'%(self.name,relpkgcmt)
             log.warning(err)
             raise CommandFailure,err
-        cmd(cmdstr,self.env())
+        import command
+        command.cmd(cmdstr,env=self.env(),dir=relpkgcmt)
 
     def config(self):
         '''Configure all packages reached by the project's release package'''
         self.cmd_inrel('cmt br cmt config')
         return
 
+    def broadcast(self,what):
+        'Broadcast a command from the release package'
+        self.cmd_inrel('cmt br %s'%what)
+
     def make(self,target=""):
-        '''Broadcast a make from the projects release pacakge'''
-        self.cmd_inrel('cmt br make %s'%target)
+        'Broadcast a make from the projects release pacakge'
+        self.broadcast('make %s'%target)
 
         
     def init_project(self,deps=[]):

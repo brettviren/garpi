@@ -49,8 +49,11 @@ class CommandLineInterface:
                           help='Name used to identify this build, will name the sub directory of --base-directory')
         parser.add_option('-b','--base-directory',default=os.getcwd(),type='string',
                           help='Base directory holding project and external areas')
+        parser.add_option('-E','--externals',default=None,type='string',
+                          help='Explicitly list externals (single name or Python list)')
 
         (options,args) = parser.parse_args(args=argv)
+        self.parser = parser
         self.opts = options
         self.args = args
 
@@ -59,6 +62,12 @@ class CommandLineInterface:
             self.opts.base_directory = os.getcwd() + '/' + self.opts.base_directory
         if self.opts.log_file[0] != '/':
             self.opts.log_file = self.opts.base_directory + '/' + self.opts.log_file
+        if self.opts.externals:
+            if self.opts.externals[0] == "[":
+                self.opts.externals = eval(self.opts.externals)
+            else:
+                self.opts.externals = [self.opts.externals]
+            pass
 
         # Get defaults 
         from ConfigParser import SafeConfigParser

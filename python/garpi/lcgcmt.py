@@ -92,7 +92,9 @@ setenv CMTEXTRATAGS garpi
             rel_dir = os.path.join('LCG_Builders',builder_pkg)
 
             externals = self.externals(package=rel_dir,exclusions=exclusions)
+            #print 'builder_pkg=',builder_pkg,' has externals:',externals
             for ext in externals:
+                if ext == pkg: continue
 
                 ext_dir = self.builder_directory(ext)
                 if not ext_dir:

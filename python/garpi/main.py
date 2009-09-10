@@ -1,107 +1,107 @@
 #!/usr/bin/env python
 
-import os,sys
-from util import log,goto
-
-class Dir:
-    def __init__(self,garpi):
-        self.garpi = garpi
-
-    def external(self):
-        return self.garpi.opts.base_directory + '/external'
-
-    def projects(self):
-        return self.garpi.opts.base_directory + '/' + self.garpi.opts.name
-
-    def setup(self):
-        return self.projects() + '/setup'
-
-class Go:
-    def __init__(self,garpi):
-        self.garpi = garpi
-        self.dir = Dir(garpi)
-        return
-
-    def to(self,theDir): 
-        return goto(theDir)
-
-    def external(self):
-        'Go to the external directory'
-        return self.to(self.dir.external())
-
-    def projects(self):
-        'Go to the directory holding projects'
-        return self.to(self.dir.projects())
-
-    def setup(self):
-        'Go to the setup directory'
-        return self.to(self.dir.setup())
-
 class Garpi:
     '''
-    Main object controlling installation.  It is passed to each state
-    handler.
+    Main object controlling installation.
     '''
 
-    def __init__(self,argv):
-        self.go = Go(self)
-        self.dir = Dir(self)
-        self.machine = None
-        self._env = os.environ
-
-        import config
-        self.cfg = config.file
-        self.opts = config.opts
-        self.args = config.args
-
-        self.load_states()
-        return
-
-    def setenv(self,var,val):
-        os.putenv(var,val)
-        self._env = os.environ
-        return
+    def __init__(self):
         
-    def load_states(self):
-        if self.machine: return
+        from garpi import sanity
+        sanity.check()
 
-        from statemachine import StateMachine
-        name = (self.opts.base_directory,self.opts.name)
-        self.machine = StateMachine("%s/%s.state"%name)
-        self.machine.corefile = '%s/%s.core'%name
+        from garpi.config import cli
+        self.cli = cli
 
-        import states
-        for state in states.__all__:
-            state = eval('states.'+state)
-            #print state
-            try:
-                state = state()
-            except TypeError: pass
-            state.register(self)
+        self.projects = []
+
+        from garpi.lcgcmt import Lcgcmt
+        self.lcgcmt = Lcgcmt()
+        self.projects.append(self.lcgcmt)
+
+        from garpi.gaudi import Gaudi
+        self.gaudi = Gaudi()
+        self.projects.append(self.gaudi)
+
+        projects = eval(cli.file.get('projects','projects'))
+        for pname in projects:
+            if pname in ['lcgcmt','gaudi']: continue
+            from garpi.projects import Project
+            self.projects.append(Project(pname))
+            continue        
+        
+        return
+
+    def run(self):
+        'Apply command line arguments'
+        
+        if not self.cli.args: return
+
+        try:
+            cmd = self.cli.args[1]
+        except IndexError:
+            self.cli.parser.error("No command line argument given")
+            return
+        try:
+            args = self.cli.args[2:]
+        except IndexError:
+            args = []
+
+        func = eval("self.do_%s"%cmd)
+        if args: func(args)
+        else: func()
+
+    def do_setup(self):
+        import garpi.setup
+        garpi.setup.init()
+        return
+
+    def do_cmt(self,what="all"):
+        if what == "all": what = ["download","unpack","build","setup"]
+        if type(what) == type(""): what = [what]
+
+        from garpi import cmt
+
+        for cmd in what:
+            func = eval("cmt.%s",cmd)
+            func()
             continue
-        self.machine.add_state("DONE", None, end_state=1)
+        return
+
+    def do_print_cmtconfig(self):
+        print self.lcgcmt.cmtconfig()
+        return
+
+    def do_print_externals(self):
+        pkglist = self.externals()
+        print ' '.join(pkglist)
+        return
+
+    def do_externals(self,pkglist=list()):
+        if not pkglist:
+            pkglist = self.externals()
+
+        for pkg in pkglist:
+            self.lcgcmt.build_package(pkg)
 
         return
 
-    def dump(self,fp):
-        fp.write('env = ' + str(self._env) + '\n')
-        fp.write("cfg = '''\n")
-        self.cfg.write(fp)
-        fp.write("\n'''\n")
-        fp.write('opts = ' + str(self.opts) + '\n')
-        fp.write('args = ' + str(self.args) + '\n')
+    def externals(self):
+        'return ordered list of all externals needed by listed projects'
+        if self.cli.opts.externals: 
+            return self.cli.opts.externals
 
-    def start(self):
-        'Start the build'
-        log.info('Garpi starting')
-        self.machine.run(self,self.opts.starting_state)
-        log.info('Garpi build done')
-
-    pass
-
+        pkgs = []
+        for proj in self.projects:
+            for ext in proj.externals():
+                if ext not in pkgs:
+                    pkgs.append(ext)
+                    pass
+                continue
+            continue
+        return pkgs
 
 
-    
 if '__main__' == __name__:
-    garpi = Garpi(sys.argv)
-    garpi.start()
+    garpi = Garpi()
+    garpi.run()

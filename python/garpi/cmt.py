@@ -89,6 +89,7 @@ def build():
 def setup():
     'Add CMT setup scripts to the setup directory.'
     setup = srcdir() + '/mgr/setup'
+    fs.assure(fs.setup())
     fs.goto(fs.setup())
     def do_link(ext):
         if os.path.exists('00_cmt'+ext): 

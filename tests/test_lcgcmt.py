@@ -86,12 +86,15 @@ def test_builder_finder():
             assert builddir is None, "Reflex shouldn't have a builder"
         else:
             assert builddir,'No build directory for "%s"'%pkg
-        print '%s built by %s'%(pkg,builddir)
+        #print '%s built by %s'%(pkg,builddir)
         continue
     return
 
 def test_builder_externals():
     global pkgs
+    # override for debug
+    #pkgs = ['Python']
+    pkgs = ['CppUnit', 'CLHEP', 'AIDA', 'uuid', 'XercesC', 'HepPDT' ]
     more_pkgs = lcgcmt.builder_externals(pkgs,exclusions=exclusions)
     for pkg in more_pkgs:
         builddir = lcgcmt.builder_directory(pkg)
@@ -99,24 +102,34 @@ def test_builder_externals():
             assert builddir is None, "Reflex shouldn't have a builder"
         else:
             assert builddir,'No build directory for "%s"'%pkg
-        print '%s built by %s'%(pkg,builddir)
+        #print '%s built by %s'%(pkg,builddir)
         continue
     pkgs = more_pkgs
+    #print pkgs
     return
 
 def test_build_packages():
+    print "Will buid the following package:\n\t%s"%' '.join(pkgs)
     for pkg in pkgs:
         lcgcmt.build_package(pkg)
 
+
 if '__main__' == __name__:
-    test_make()
-    #test_get()
-    #test_update()
-    test_init()
-    # test_env()
-    # test_reachable_packages()
-    # test_uses()
-    #test_cmtconfig()
-    #test_builder_finder()
-    test_builder_externals()
-    test_build_packages()
+    def stage1():
+        test_make()
+        test_get()
+        test_update()
+        test_init()
+
+    def stage2():
+        test_make()
+        test_env()
+        test_reachable_packages()
+        #test_uses()
+        test_cmtconfig()
+        test_builder_finder()
+        test_builder_externals()
+        test_build_packages()
+        
+    stage1()
+    #stage2()

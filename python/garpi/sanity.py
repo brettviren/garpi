@@ -9,6 +9,16 @@ from command import cmd
 import os
 
 def check_generic():
+
+    try:
+        cfg = os.environ['CMTCONFIG']
+    except KeyError,err:
+        print '''
+        It is required to set CMTCONFIG by hand.
+        Use cmtconfig.py to provide a suggestion.
+'''
+        return False
+
     return True
 
 def check_redhat():
