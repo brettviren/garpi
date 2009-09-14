@@ -125,9 +125,10 @@ setenv CMTEXTRATAGS garpi
 
         dir = self.builder_directory(pkg)
         from exception import InconsistentState
-        if not dir: InconsistentState('No builder directory for "%s"'%pkg)
+        if dir is None: 
+            raise InconsistentState('No builder directory for "%s"'%pkg)
         
-        print 'Building %s'%pkg
+        print 'Building %s in %s'%(pkg,dir)
 
         pkg = os.path.basename(dir)
         cmtdir = os.path.join(dir,'cmt')
