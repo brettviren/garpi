@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+# -*- python -*-
+
+from garpi.main import Garpi
+
+g = Garpi()
+g.run()
+
