@@ -68,6 +68,11 @@ class Garpi:
             continue
         return
 
+    def do_lcgcmt(self):
+        self.lcgcmt.download()
+        self.lcgcmt.init_project()
+        return
+
     def do_print_cmtconfig(self):
         print self.lcgcmt.cmtconfig()
         return
