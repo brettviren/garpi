@@ -63,7 +63,7 @@ class Garpi:
         from garpi import cmt
 
         for cmd in what:
-            func = eval("cmt.%s",cmd)
+            func = eval("cmt.%s"%cmd)
             func()
             continue
         return
