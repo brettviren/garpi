@@ -36,7 +36,7 @@ def check_debian():
 def check():
     '''Perform sanity checks relevant to the installation host'''
 
-    assert check_generic(), 'Generic sanity checks failed.'
+    #assert check_generic(), 'Generic sanity checks failed.'
 
     if os.path.exists('/etc/debian_version'):
         assert check_debian(), 'Debian specific checks failed.'

@@ -7,11 +7,11 @@ class Garpi:
 
     def __init__(self):
         
-        from garpi import sanity
-        sanity.check()
-
         from garpi.config import cli
         self.cli = cli
+
+        from garpi import sanity
+        sanity.check()
 
         self.projects = []
 
