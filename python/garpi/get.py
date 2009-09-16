@@ -25,7 +25,7 @@ def get_git(scheme,url,target,overwrite,tag):
         if line[0] != '*': continue
         out = line.split()[1]
         break
-    print out,tag
+    #print out,tag
     if out != tag:
         lbranches,rbranches = git.branches()
         if tag in lbranches:
