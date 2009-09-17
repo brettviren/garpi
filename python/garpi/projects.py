@@ -12,6 +12,26 @@ class Project:
         self.NAME = name.upper()
         return
 
+    def tags(self):
+        import cmt
+        rel_path = os.path.join(self.proj_dir(),self.rel_pkg(),'cmt')
+        extra_env = cmt.env(rel_path)
+        return cmt.tags(extra_env=extra_env,dir=rel_path)
+
+    def sets(self):
+        import cmt
+        rel_path = os.path.join(self.proj_dir(),self.rel_pkg(),'cmt')
+        extra_env = cmt.env(rel_path)
+        return cmt.sets(extra_env=extra_env,dir=rel_path)
+
+    def macro(self,name):
+        import cmt
+        rel_path = os.path.join(self.proj_dir(),self.rel_pkg(),'cmt')
+        extra_env = cmt.env(rel_path)
+        return cmt.macro(name,extra_env=extra_env,dir=rel_path).strip()
+
+
+
     def get_config(self,what):
         'Get the WHAT config from the project_PROJECT section'
         from config import cli

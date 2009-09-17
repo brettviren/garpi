@@ -12,11 +12,7 @@ class Lcgcmt(Project):
 
     def cmtconfig(self):
         'Return an auto-determined CMTCONFIG value.'
-        import cmt
-        rel_path = os.path.join(self.proj_dir(),self.rel_pkg(),'cmt')
-        extra_env = cmt.env(rel_path)
-
-        sets = cmt.sets(extra_env=extra_env,dir=rel_path)
+        sets = self.sets()
         try:
             return sets['CMTCONFIG'].strip()
         except KeyError:
@@ -25,12 +21,25 @@ class Lcgcmt(Project):
         from exception import CommandFailure
         for macro in ['host-cmtconfig','LCG_platform']:
             try:
-                return cmt.macro(macro,extra_env=extra_env,dir=rel_path).strip()
+                return self.macro(macro).strip()
             except CommandFailure:
                 pass
             continue
 
         return None
+
+    def test_cmtconfig(self,cmtconfig):
+        import cmt
+        rel_path = os.path.join(self.proj_dir(),self.rel_pkg(),'cmt')
+        extra_env = cmt.env(rel_path)
+        suggested = cmt.macro('host-cmtconfig',extra_env=extra_env,dir=rel_path).strip()
+        extra_env['CMTCONFIG'] = cmtconfig
+        found = cmt.macro('host-cmtconfig',extra_env=extra_env,dir=rel_path).strip()
+        platform = cmt.macro('LCG_platform',extra_env=extra_env,dir=rel_path).strip()
+        assert cmtconfig == found, 'Error: given CMTCONFIG not supported: "%s" != "%s"'%(cmtconfig,found)
+        assert cmtconfig == platform, 'Error: CMTCONFIG will differ from platform: "%s" != "%s"'%(cmtconfig,basesystem)
+        return
+
 
     def init_project(self,deps=[]):
         'Initialize the LCGCMT project'

@@ -68,13 +68,54 @@ class Garpi:
             continue
         return
 
+    def do_print_projects(self):
+        for proj in self.projects:
+            print proj.name,
+        print
+
+    def do_get_projects(self,projlist=list()):
+        if projlist:
+            projects = map(lambda x: Project(x))
+        else:
+            projects = self.projects
+        for proj in projects:
+            proj.download()
+        return        
+
+    def do_init_projects(self,projlist=list()):
+        if projlist:
+            projects = map(lambda x: Project(x))
+        else:
+            projects = self.projects
+        for proj in projects:
+            proj.init_project()
+        return        
+
     def do_lcgcmt(self):
         self.lcgcmt.download()
         self.lcgcmt.init_project()
         return
 
+    def do_show_tags(self):
+        print '\n'.join(self.lcgcmt.tags())
+        return
+
     def do_print_cmtconfig(self):
         print self.lcgcmt.cmtconfig()
+        return
+
+    def do_test_cmtconfig(self,cmtconfig=list()):
+        import os
+        if not cmtconfig: 
+            cmtconfig = os.getenv('CMTCONFIG',None)
+            if cmtconfig is None: 
+                print 'No CMTCONFIG given and none in the environment'
+                return
+            cmtconfig = [cmtconfig]
+        for cc in cmtconfig:
+            print 'Testing "%s"'%cc
+            self.lcgcmt.test_cmtconfig(cc)
+            print '%s ok.'%cc
         return
 
     def do_print_externals(self):
