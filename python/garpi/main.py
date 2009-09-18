@@ -51,6 +51,17 @@ class Garpi:
         if args: func(args)
         else: func()
 
+    def do_help(self):
+        'Print list of commands and their brief documentation strings.'
+        for methname in dir(self):
+            if 'do_' not in methname: continue
+            cmdname = methname[3:]
+            meth = eval('self.%s'%methname)
+            print '%s:\n\t%s\n'%(cmdname,meth.__doc__)
+            continue
+        return
+
+
     def do_setup(self):
         'Create basic setup scripts'
         import garpi.setup
