@@ -20,6 +20,7 @@ def test_list_externals():
     'Test finding the externals'
     exclusions = ['GaudiPoolDb','GaudiGridSvc',
                   'HbookCnv','RootHistCnv','PCRE']
+    exclusions = []
     global externs
     externs = gaudi.externals(exclusions=exclusions)
     assert externs, 'Got no externals for gaudi'
@@ -52,7 +53,7 @@ def test_build_gaudi():
 if '__main__' == __name__:
     test_make_gaudi_object()
     #test_get_gaudi()
-    #test_list_externals()
+    test_list_externals()
     #test_build_externals()
     #test_config_gaudi()
-    test_build_gaudi()
+    #test_build_gaudi()

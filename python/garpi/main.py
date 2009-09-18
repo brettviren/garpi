@@ -52,11 +52,13 @@ class Garpi:
         else: func()
 
     def do_setup(self):
+        'Create basic setup scripts'
         import garpi.setup
         garpi.setup.init()
         return
 
     def do_cmt(self,what="all"):
+        'Install cmt'
         if what == "all": what = ["download","unpack","build","setup"]
         if type(what) == type(""): what = [what]
 
@@ -69,11 +71,13 @@ class Garpi:
         return
 
     def do_print_projects(self):
+        'Print out what projects are configured'
         for proj in self.projects:
             print proj.name,
         print
 
     def do_get_projects(self,projlist=list()):
+        'Get the source code for all projects'
         if projlist:
             projects = map(lambda x: Project(x))
         else:
@@ -83,6 +87,7 @@ class Garpi:
         return        
 
     def do_init_projects(self,projlist=list()):
+        'Initialize projects'
         if projlist:
             projects = map(lambda x: Project(x))
         else:
@@ -92,19 +97,23 @@ class Garpi:
         return        
 
     def do_lcgcmt(self):
+        'undocumented'
         self.lcgcmt.download()
         self.lcgcmt.init_project()
         return
 
     def do_show_tags(self):
+        'undocumented'
         print '\n'.join(self.lcgcmt.tags())
         return
 
     def do_print_cmtconfig(self):
+        'Print the CMTCONFIG of this native host'
         print self.lcgcmt.cmtconfig()
         return
 
     def do_test_cmtconfig(self,cmtconfig=list()):
+        'Test given CMTCONFIG or one from environment'
         import os
         if not cmtconfig: 
             cmtconfig = os.getenv('CMTCONFIG',None)
@@ -119,11 +128,13 @@ class Garpi:
         return
 
     def do_print_externals(self):
+        'Print externals required by configured projects'
         pkglist = self.externals()
         print ' '.join(pkglist)
         return
 
     def do_externals(self,pkglist=list()):
+        'Build given list of externals, or all required ones'
         if not pkglist:
             pkglist = self.externals()
 
@@ -138,8 +149,13 @@ class Garpi:
             return self.cli.opts.externals
 
         pkgs = []
-        for proj in self.projects:
-            for ext in proj.externals():
+        for proj in self.projects[1:]:
+            externals = proj.externals()
+            print 'Project %s has %d direct'%(proj.name,len(externals)),
+            externals = self.lcgcmt.builder_externals(externals)
+            print ' and %d total externals'%len(externals)
+            for ext in externals:
+                print proj.name,ext
                 if ext not in pkgs:
                     pkgs.append(ext)
                     pass

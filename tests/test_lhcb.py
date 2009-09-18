@@ -51,7 +51,7 @@ def test_build_lhcb():
 if '__main__' == __name__:
     test_make_lhcb_object()
     #test_get_lhcb()
-    #test_list_externals()
+    test_list_externals()
     #test_build_externals()
     #test_config_lhcb()
-    test_build_lhcb()
+    #test_build_lhcb()
