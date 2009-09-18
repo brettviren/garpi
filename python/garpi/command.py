@@ -79,7 +79,7 @@ def make(target='',env=None,dir=None,output=False):
     'Make the given target'
     return cmd('make %s'%target,env,dir,output)
 
-def cmd(cmd,env=None,dir=None,output=False):
+def cmd(cmdstr,env=None,dir=None,output=False):
     '''
     Run an arbitrary command given by first non-optional argument.  If
     it is a full command line string it will be broken down via a
@@ -99,10 +99,10 @@ def cmd(cmd,env=None,dir=None,output=False):
     out = []
 
     # Convert to list if given a string
-    if type(cmd) == type(""):
-        cmd = cmd.strip()
-        cmds = cmd.split()
-        if len(cmds) > 1: cmd = cmds
+    if type(cmdstr) == type(""):
+        cmdstr = cmdstr.strip()
+        cmds = cmdstr.split()
+        if len(cmds) > 1: cmdstr = cmds
 
     if not env: env = os.environ
 
@@ -110,7 +110,7 @@ def cmd(cmd,env=None,dir=None,output=False):
 
     if dir: fs.goto(dir)
 
-    log.info('running: "%s" in %s'%(cmd,os.getcwd()))
+    log.info('running: "%s" in %s'%(cmdstr,os.getcwd()))
 
     # Must update this explicitly since env is not tied to this
     # application's env.
@@ -119,8 +119,9 @@ def cmd(cmd,env=None,dir=None,output=False):
     #log.info('\n'.join(map(lambda x: '"%s" --> "%s"'%x, env.iteritems())))
 
     # Start the command
+    # print 'cmdstr="%s", env=%s'%(cmdstr,env)
     try:
-        proc = Popen(cmd,stdout=PIPE,stderr=STDOUT,env=env)
+        proc = Popen(cmdstr,stdout=PIPE,stderr=STDOUT,env=env)
     except OSError,err:
         if dir: fs.goback()
         log.error_notrace(err)
@@ -150,7 +151,7 @@ def cmd(cmd,env=None,dir=None,output=False):
     # Check return code
     if res is not 0:
         if dir: fs.goback()
-        if type(cmd) == list: cmd = " ".join(cmd)
+        if type(cmdstr) == list: cmdstr = " ".join(cmd)
         err = 'Command: %s failed with code %d'%(cmd,res)
         log.error(err)
         from exception import CommandFailure
