@@ -20,22 +20,21 @@ def base_url():
     return cli.file.get('git','git_site_url')
 
 def url():
-    return '%s/%s'%(base_url(),tgz())
+    return os.path.join(base_url(),tgz())
 
 def srcdir():
     return os.path.join(fs.external(),'git-%s'%ver())
 
+_prefix = None
 def prefix():
+    global _prefix
+    if _prefix: return _prefix
     import cmt
-    return os.path.join(fs.external(),'git',ver(),cmt.macro('tag').strip())
+    _prefix = os.path.join(fs.external(),'git',ver(),cmt.macro('tag').strip())
+    return _prefix
 
-_gitexe = None
 def gitexe():
-    global _gitexe
-    if not _gitexe:
-        _gitexe = os.path.join(prefix(),'bin/git')
-        #print 'setting gitexe to',_gitexe
-    return _gitexe
+    return os.path.join(prefix(),'bin/git')
 
 def download():
     'Download GIT source tar file into external area.'
@@ -78,10 +77,22 @@ def build():
 
     exe = gitexe()
     if os.path.exists(exe):
-        log.info('git appears to already have been installed to',exe)
+        log.info('git appears to already have been installed to %s'%exe)
     else:
         make('install')
     return exe
+
+def setup():
+    'Add GIT setup scripts to the setup directory.'
+    fs.assure(fs.setup())
+    fs.goto(fs.setup())
+    for export,letter,equals in [('export','','='),('setenv','c',' ')]:
+        ss = open('00_git.%ssh'%letter,'w')
+        ss.write('''#!/bin/%ssh
+%s PATH%s%s:${PATH}
+'''%(letter,export,equals,os.path.join(prefix(),'bin')))
+        ss.close()
+    return fs.setup() + '/00_git.sh'
 
 def gitcmd(cmdstr):
     return cmd('%s %s'%(gitexe(),cmdstr),output=True)

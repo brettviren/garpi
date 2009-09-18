@@ -57,7 +57,12 @@ class Garpi:
         garpi.setup.init()
         return
 
-    def do_cmt(self,what="all"):
+    def do_install_prerequisites(self):
+        self.do_install_cmt()
+        self.do_install_git()
+        return
+
+    def do_install_cmt(self,what="all"):
         'Install cmt'
         if what == "all": what = ["download","unpack","build","setup"]
         if type(what) == type(""): what = [what]
@@ -69,6 +74,20 @@ class Garpi:
             func()
             continue
         return
+
+    def do_install_git(self,what="all"):
+        'Install git'
+        if what == "all": what = ["download","unpack","build","setup"]
+        if type(what) == type(""): what = [what]
+
+        from garpi import git
+
+        for cmd in what:
+            func = eval("git.%s"%cmd)
+            func()
+            continue
+        return
+
 
     def do_print_projects(self):
         'Print out what projects are configured'
