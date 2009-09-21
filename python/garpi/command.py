@@ -121,7 +121,7 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     # Start the command
     # print 'cmdstr="%s", env=%s'%(cmdstr,env)
     try:
-        proc = Popen(cmdstr,stdout=PIPE,stderr=STDOUT,env=env)
+        proc = Popen(cmdstr,stdout=PIPE,stderr=STDOUT,universal_newlines=True,env=env)
     except OSError,err:
         if dir: fs.goback()
         log.error_notrace(err)
@@ -133,18 +133,19 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     old_format = log_maker.set_format('%(message)s')
 
     # Read in and dump output until command finishes
-    madadayo = True
     res = None
-    while madadayo:
-        #print 'readline...',
+    while True:
         line = proc.stdout.readline()
-        #print line
+
         res = proc.poll()
-        if not line and res is not None: madadayo = False
+
         line = line.strip()
-        if line: log.info(line)
-        if output: out.append(line)
-        continue
+        log.info(line)
+        if output:
+            out.append(line)
+
+        if res is None: continue
+        break
 
     log_maker.set_format(old_format)
 
