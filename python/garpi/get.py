@@ -36,6 +36,25 @@ def get_git(scheme,url,target,overwrite,tag):
     fs.goback()
     return
 
+
+def get_svn(url,target,overwrite):
+    cmd = 'co'
+    if os.path.exists(target):
+        if overwrite:
+            cmd = 'up'
+        else:
+            log.info('Pre-existing file found, not re-getting %s'%target)
+            return target
+
+    targetdir = os.path.dirname(target)
+    if not targetdir: targetdir = './'
+    fs.assure(os.path.dirname(targetdir))
+    fs.goto(targetdir)
+    import svn
+    svn.svncmd('co %s'%url)
+    fs.goback()
+    return target
+
 def get_http_ftp(what,url,target,overwrite):
     from urllib2 import Request, urlopen, URLError, HTTPError, ProxyHandler, build_opener, install_opener
     import shutil
@@ -113,10 +132,15 @@ def get(url,target,overwrite=False,tag=None):
     urlp = uriparse(url)
     if urlp[0] == 'http' or urlp[0] == 'ftp':
         return get_http_ftp(urlp[0],url,target,overwrite)
+
     scheme = urlp[0].split('+')
-    #print urlp,scheme
+
+    print urlp,scheme
     if urlp[0] == 'git' or scheme[0] == 'git':
         return get_git(scheme,url,target,overwrite,tag)
+
+    if scheme[0] == 'svn':
+        return get_svn(scheme[1]+'://'+urlp[1]+'/'+urlp[2],target,overwrite)
 
     msg = 'Unhandled URL: "%s"'%url
     log.error(msg)
