@@ -15,19 +15,19 @@ class Garpi:
 
         self.projects = []
 
-        from garpi.lcgcmt import Lcgcmt
-        self.lcgcmt = Lcgcmt()
-        self.projects.append(self.lcgcmt)
-
-        from garpi.gaudi import Gaudi
-        self.gaudi = Gaudi()
-        self.projects.append(self.gaudi)
-
         projects = eval(cli.file.get('projects','projects'))
         for pname in projects:
-            if pname in ['lcgcmt','gaudi']: continue
-            from garpi.projects import Project
-            self.projects.append(Project(pname))
+            if pname == 'lcgcmt':
+                from garpi.lcgcmt import Lcgcmt
+                self.lcgcmt = Lcgcmt()
+                self.projects.append(self.lcgcmt)
+            elif pname == 'gaudi':
+                from garpi.gaudi import Gaudi
+                self.gaudi = Gaudi()
+                self.projects.append(self.gaudi)
+            else:
+                from garpi.projects import Project
+                self.projects.append(Project(pname))
             continue        
         
         return

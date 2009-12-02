@@ -45,7 +45,7 @@ class MyLogger(logging.Logger):
                 continue
             return filename, f.f_lineno, ""
 
-class LogMaker():
+class LogMaker(object):
     default_format = '%(asctime)s %(process)d %(levelname)s %(module)s:%(lineno)d - %(message)s'
     def __init__(self,name):
         self.log = None
@@ -89,11 +89,19 @@ log_maker = LogMaker('garpi')
 log = log_maker.make_logger()
 
 
+def extractall(tar):
+    for member in tar.getmembers():
+        tar.extract(member)
+
+
 def untar(filename):
     import tarfile
     log.info("Untar %s in %s"%(filename,os.getcwd()))
     tar = tarfile.open(filename)
-    tar.extractall()
+    try:
+        tar.extractall()
+    except AttributeError:
+        extractall(tar)
     tar.close()
 
 

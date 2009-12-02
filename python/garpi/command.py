@@ -152,8 +152,8 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     # Check return code
     if res is not 0:
         if dir: fs.goback()
-        if type(cmdstr) == list: cmdstr = " ".join(cmd)
-        err = 'Command: %s failed with code %d'%(cmd,res)
+        if isinstance(cmdstr,list): cmdstr = " ".join(cmdstr)
+        err = 'Command: %s failed with code %d'%(cmdstr,res)
         log.error(err)
         from exception import CommandFailure
         raise CommandFailure,err
