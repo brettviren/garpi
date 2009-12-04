@@ -139,12 +139,20 @@ def cmd(cmdstr,env=None,dir=None,output=False):
 
         res = proc.poll()
 
-        line = line.strip()
-        log.info(line)
-        if output:
-            out.append(line)
+        if line:
+            line = line.strip()
+            log.info(line)
+            if output:
+                out.append(line)
 
         if res is None: continue
+        # fixme: clean up this cut-and-paste of above!
+        for line in proc.stdout.readlines():
+            if line:
+                line = line.strip()
+                log.info(line)
+                if output:
+                    out.append(line)
         break
 
     log_maker.set_format(old_format)

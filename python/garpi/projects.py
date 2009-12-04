@@ -111,7 +111,8 @@ class Project:
         self.broadcast('make %s'%target)
 
         
-    def init_project(self,deps=[]):
+    def init_project(self,deps=None):
+        if deps is None: deps = list()
         import fs
         fs.assure(self.proj_dir()+'/cmt')
         fp = open(self.proj_dir()+'/cmt/project.cmt','w')
@@ -125,7 +126,7 @@ setup_strategy root\n''')
         fp.close()
         return
 
-    def externals(self,package = None, exclusions = []):
+    def externals(self,package = None, exclusions = None):
         '''
         Start in the given package else use this project's release
         package, find all the uses that are under LCG_Interface, and
@@ -133,6 +134,7 @@ setup_strategy root\n''')
         dependencies will be excluded from the results.  Return
         ordered list of the package name.
         '''
+        if exclusions is None: exclusions = list()
 
         if not package:
             package = self.rel_pkg()
@@ -148,6 +150,7 @@ setup_strategy root\n''')
         myuses = []
         mynames = []
         for use in uses:
+            #print 'USE:',use,'project:',use.project
             if not use.project == self.name: continue
             if use.name in exclusions:
                 log.info('Excluding "%s"'%use.name)

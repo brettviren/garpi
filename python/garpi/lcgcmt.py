@@ -41,13 +41,20 @@ class Lcgcmt(Project):
         return
 
 
-    def init_project(self,deps=[]):
+    def init_project(self,deps=None):
         'Initialize the LCGCMT project'
         import fs,os
         setupdir = fs.setup()
         fs.assure(setupdir)
 
         base = fs.setup()
+
+        tags = ['garpi']
+        extra_tags = eval(self.get_config('extra_tags'))
+        if extra_tags is not None:
+            tags += extra_tags
+        tags = ','.join(tags)
+        #print 'setting extra tags =',tags
 
         # Bourne Shell
         sh = open(os.path.join(base,'10_lcgcmt.sh'),'w')
@@ -56,9 +63,9 @@ SITEROOT=%s
 export SITEROOT
 CMTPROJECTPATH=$SITEROOT/%s
 export CMTPROJECTPATH
-CMTEXTRATAGS=garpi
+CMTEXTRATAGS=%s
 export CMTEXTRATAGS
-        '''%(fs.base(),fs.name()))
+        '''%(fs.base(),fs.name(),tags))
         sh.close()
 
         # C(rappy) Shell
@@ -66,8 +73,8 @@ export CMTEXTRATAGS
         csh.write('''#!/bin/csh
 setenv SITEROOT %s
 setenv CMTPROJECTPATH %s
-setenv CMTEXTRATAGS garpi
-        '''%(fs.base(),fs.name()))
+setenv CMTEXTRATAGS %s
+        '''%(fs.base(),fs.name(),tags))
         csh.close()
         return
 
@@ -84,7 +91,7 @@ setenv CMTEXTRATAGS garpi
             continue
         return None
 
-    def builder_externals(self,pkgs,exclusions=[]):
+    def builder_externals(self,pkgs,exclusions=None):
         '''Take an ordered list of LCG_Interface packages, return an
         ordered list of LCG_Interface packages.  If an input package
         has dependencies they will be inserted before the input
@@ -132,15 +139,15 @@ setenv CMTEXTRATAGS garpi
         fs.assure(os.path.join(fs.external(),'tarFiles'))
         fs.assure(os.path.join(fs.external(),'build/LCG'))
 
-        dir = self.builder_directory(pkg)
+        bdir = self.builder_directory(pkg)
         from exception import InconsistentState
-        if dir is None: 
+        if bdir is None: 
             raise InconsistentState('No builder directory for "%s"'%pkg)
         
-        print 'Building %s in %s'%(pkg,dir)
+        print 'Building %s in %s'%(pkg,bdir)
 
-        pkg = os.path.basename(dir)
-        cmtdir = os.path.join(dir,'cmt')
+        pkg = os.path.basename(bdir)
+        cmtdir = os.path.join(bdir,'cmt')
 
         import fs
         fs.goto(cmtdir)

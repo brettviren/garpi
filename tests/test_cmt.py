@@ -39,12 +39,18 @@ def test_show():
     tags = cmt.tags()
     assert tags.has_key('Unix')  # Ha!
 
-    
+def test_uses():
+    pkgdir='projects/interim/InterimRelease'
+    uses = cmt.get_uses(pkgdir)
+    print 'Got %d uses:'%len(uses)
+    for use in uses:
+        print 'Use:',use,'use.project=',use.project
 
 if '__main__' == __name__:
-    test_download()
-    test_unpack()
-    test_build()
-    test_setup()
-    test_help()
-    test_show()
+    #test_download()
+    #test_unpack()
+    #test_build()
+    #test_setup()
+    #test_help()
+    #test_show()
+    test_uses()

@@ -46,13 +46,9 @@ def get_svn(url,target,overwrite):
             log.info('Pre-existing file found, not re-getting %s'%target)
             return target
 
-    targetdir = os.path.dirname(target)
-    if not targetdir: targetdir = './'
-    fs.assure(os.path.dirname(targetdir))
-    fs.goto(targetdir)
+    fs.assure(target)
     import svn
-    svn.svncmd('co %s'%url)
-    fs.goback()
+    svn.svncmd('co %s %s'%(url,target))
     return target
 
 def get_http_ftp(what,url,target,overwrite):
@@ -140,7 +136,7 @@ def get(url,target,overwrite=False,tag=None):
         return get_git(scheme,url,target,overwrite,tag)
 
     if scheme[0] == 'svn':
-        return get_svn(scheme[1]+'://'+urlp[1]+'/'+urlp[2],target,overwrite)
+        return get_svn(scheme[1]+'://'+urlp[1]+'/'+urlp[2]+'/'+tag,target,overwrite)
 
     msg = 'Unhandled URL: "%s"'%url
     log.error(msg)

@@ -106,7 +106,7 @@ class Garpi:
             print proj.name,
         print
 
-    def do_get_projects(self,projlist=list()):
+    def do_get_projects(self,projlist=None):
         'Get the source code for all projects'
         if projlist:
             projects = map(lambda x: Project(x))
@@ -116,14 +116,17 @@ class Garpi:
             proj.download()
         return        
 
-    def do_init_projects(self,projlist=list()):
+    def do_init_projects(self,projlist=None):
         'Initialize projects'
         if projlist:
             projects = map(lambda x: Project(x))
         else:
             projects = self.projects
+
+        deps = []
         for proj in projects:
-            proj.init_project()
+            proj.init_project(deps)
+            deps.append(proj.name)
         return        
 
     def do_lcgcmt(self):
@@ -142,7 +145,7 @@ class Garpi:
         print self.lcgcmt.cmtconfig()
         return
 
-    def do_test_cmtconfig(self,cmtconfig=list()):
+    def do_test_cmtconfig(self,cmtconfig = None):
         'Test given CMTCONFIG or one from environment'
         import os
         if not cmtconfig: 
@@ -163,7 +166,7 @@ class Garpi:
         print ' '.join(pkglist)
         return
 
-    def do_externals(self,pkglist=list()):
+    def do_externals(self,pkglist=None):
         'Build given list of externals, or all required ones'
         if not pkglist:
             pkglist = self.externals()
@@ -180,12 +183,14 @@ class Garpi:
 
         pkgs = []
         for proj in self.projects[1:]:
-            externals = proj.externals()
-            print 'Project %s has %d direct'%(proj.name,len(externals)),
-            externals = self.lcgcmt.builder_externals(externals)
-            print ' and %d total externals'%len(externals)
-            for ext in externals:
-                print proj.name,ext
+            direct = proj.externals()
+            print 'Project %s has %d direct'%(proj.name,len(direct)),
+            indirect = self.lcgcmt.builder_externals(direct)
+            print 'and %d total externals'%len(indirect)
+            for ext in indirect:
+                print proj.name,ext,
+                if ext in direct: print '(direct)'
+                else: print '(indirect)'
                 if ext not in pkgs:
                     pkgs.append(ext)
                     pass

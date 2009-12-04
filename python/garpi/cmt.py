@@ -101,7 +101,7 @@ def setup():
         
 #------ build above, usage below --------#
 
-def cmt(cmdstr='',extra_env={},dir=None,output=False):
+def cmt(cmdstr='',extra_env=None,dir=None,output=False):
     '''Run "cmt [cmdstr]".  The environment in which the cmt
     executable is run is initially composed of the application
     environment.  It is then modified by sourcing CMT's setup script.
@@ -113,7 +113,7 @@ def cmt(cmdstr='',extra_env={},dir=None,output=False):
     if extra_env: environ.update(extra_env)
     return cmd('cmt '+cmdstr,env=environ,dir=dir,output=output)
 
-def show(what,extra_env={},delim = '=',dir=None):
+def show(what,extra_env=None,delim = '=',dir=None):
     'Run "cmt show what".  Return dictionary of result'
     res = cmt('show '+what,extra_env = extra_env, dir=dir, output = True)
     ret = {}
@@ -127,23 +127,23 @@ def show(what,extra_env={},delim = '=',dir=None):
         continue
     return ret
 
-def macros(extra_env={},dir=None):
+def macros(extra_env=None, dir=None):
     '''Return all defined macros and their definitions.  If any
     extra_env is given it will be added to what is needed just to
     setup cmt.'''
     return show('macros',extra_env=extra_env,dir=dir)
 
-def macro(what,extra_env={},dir=None):
+def macro(what,extra_env=None, dir=None):
     cmdstr = 'show macro_value '+what
     return cmt(cmdstr,extra_env=extra_env,dir=dir,output=True)
 
-def sets(extra_env={},dir=None):
+def sets(extra_env=None, dir=None):
     '''Return all defined sets and their definitions.  If any
     extra_env is given it will be added to what is needed just to
     setup cmt.'''
     return show('sets',extra_env=extra_env,dir=dir)
 
-def tags(extra_env={},dir=None):
+def tags(extra_env=None,dir=None):
     '''Return all defined tags and their sources.  If any extra_env is
     given it will be added to what is needed just to setup cmt.'''
     return show('tags',extra_env=extra_env,delim=' ',dir=dir)
@@ -179,7 +179,7 @@ class UsedPackage:
                                         self.version,self.project,self.directory,
                                         map(lambda x: x.name,self.uses))
 
-def reachable_packages(pkg,extra_env={},dir=None):
+def reachable_packages(pkg,extra_env=None,dir=None):
     lines = cmt('show packages',extra_env=extra_env,dir=dir,output=True)
     ret = {}
     for line in lines.split('\n'):
@@ -196,46 +196,63 @@ def reachable_packages(pkg,extra_env={},dir=None):
             ret[name] = path
     return ret
 
-def package_version(pkg_dir,extra_env={}):
-    return cmt("show version",extra_env=extra_env,dir=pkg_dir+'/cmt').strip()
+def package_version(pkg_dir,extra_env=None):
+    out = cmt("show version",extra_env=extra_env,dir=pkg_dir+'/cmt',output=True)
+    #print 'SHOW VERSION: dir="%s" output="%s"'%(pkg_dir,out)
+    return out.strip()
 
-def package_project(pkg_dir,extra_env={}):
-    return cmt("show projects",dir=pkg_dir+'/cmt',extra_env=extra_env).split('\n')[0].strip()
+def package_project(pkg_dir,extra_env=None):
+    out = cmt("show projects",dir=pkg_dir+'/cmt',extra_env=extra_env,output=True)
+    for line in out.split('\n'):
+        line = line.strip()
+        if line[0] == '#': 
+            print line
+            continue
+        return line.split()[0].strip()
+    return None
 
+def get_package_env(pkg_dir):
+    path = os.path.join(pkg_dir,'cmt')
+    if not os.path.exists(os.path.join(path,'setup.sh')):
+        cmt("config",dir=path)
+
+    from command import source
+    extra_env = source('./setup.sh',env=env(),dir=fs.projects())
+    extra_env = source('./setup.sh',env=extra_env,dir=path)
+    return extra_env
 
 def get_uses(pkg_dir):
     'Return the packages that the package at the given directory uses'
     
-    path = os.path.join(pkg_dir,'cmt')
-    this_pkg = os.path.basename(pkg_dir)
+    extra_env = get_package_env(pkg_dir)
 
-    this_ver = package_version(pkg_dir)
-    this_project = package_project(pkg_dir)
+    this_pkg = os.path.basename(pkg_dir)
+    this_ver = package_version(pkg_dir,extra_env)
+    this_project = package_project(pkg_dir,extra_env)
+    #print pkg_dir,'is in project',this_project
 
     log.debug("pkg =",this_pkg,"ver =",this_ver,"project =",this_project)
 
     uses = [UsedPackage(this_pkg,0,False,"",this_ver,this_project)]
     pack2proj = {this_pkg:this_project}
 
-    if not os.path.exists(os.path.join(path,'setup.sh')):
-        cmt("config",dir=path)
-
-    from command import source, cmd
-    extra_env = source('./setup.sh',env=env(),dir=fs.projects())
-    extra_env = source('./setup.sh',env=extra_env,dir=path)
-
+    #...debugging...
     #for kv in extra_env.iteritems(): print '"%s" --> "%s"'%kv
+    #print 'CMTPATH="%s"'%extra_env['CMTPATH']
+    #print 'pkg_dir="%s", projects="%s"'%(pkg_dir,fs.projects())
 
-    res = cmd("cmt show uses",env=extra_env,dir=path,output=True)
+    res = cmt("show uses",extra_env,pkg_dir+'/cmt',True)
+    #print 'SHOW USES: "%s"'%res
 
     for line in res.split('\n'):
         line = line.strip()
         words = line.split(' ')
-        #print ' '.join(map(lambda x: '"%s"'%x, words))
         if len(words) == 1: continue
         if line[0] != '#': 
             pack = words[1]
-            if pack == 'CMT': continue
+            # CMT packages printed out in a non-standard way, and we
+            # don't need them anyways.
+            if len(pack) > 2 and pack[:3] == 'CMT': continue
             proj = words[4][:-1]
             if proj[-1] == '/': proj = proj[:-1]
             proj = os.path.basename(proj)
@@ -289,10 +306,11 @@ def get_uses(pkg_dir):
     return uses
 
 class Project:
-    def __init__(self,path,current=False,deps=[]):
+    def __init__(self,path,current=False,deps=None):
         self.path = path
         self.file = parse_project_file(path + "/cmt/project.cmt")
         self.deps = deps
+        if self.deps is None: self.deps = list()
         self.current = current
         self.used_packages = get_uses("%s/%s"%(path,self.file['container']))
         return
