@@ -22,34 +22,18 @@ import os
 import fs
 from util import log
 
-def source(filename,env=None,dir=None,output=False):
-    '''Produce a dictionary giving environment variables after the
-    given file has been "sourced", starting with the given env or the
-    default one in which the application runs.  If output is False,
-    return this dictionary, if True return a tuple with this
-    dictionary and a string containing any output from the source
-    command.'''
-
-
-    if dir: fs.goto(dir)
+def source (filename,env=None,dir=None,output=False):
+    '''Produce a dictionary holding environment variables after the
+    given file has been "sourced" and starting with optional initial
+    environment in the given env.  If output is False, return only
+    this dictionary, if True return a tuple with this dictionary and a
+    string containing any output from the source command.'''
 
     log.info('sourcing %s in %s'%(filename,os.getcwd()))
-
     magic='magic%dmagic'%os.getpid()
-    cmdstr = ". %s && echo '%s' && env"%(filename,magic)
-    import commands
-
-    ret,cmdres = commands.getstatusoutput(cmdstr)
-
-    if ret != 0:
-        from exception import CommandFailure
-        err = 'Failed to source "%s" from %s:\n%s' \
-            %(filename,os.getcwd(),cmdres)
-        if dir: fs.goback()
-        log.error(err)
-        raise CommandFailure, err
-
-    if dir: fs.goback()
+    sourcer = os.path.dirname(__file__) + '/source.sh'
+    cmdstr = "%s %s %s"%(sourcer,filename,magic)
+    cmdres = cmd(cmdstr,env,dir,True)
 
     res = []
     newenv = {}
@@ -67,12 +51,8 @@ def source(filename,env=None,dir=None,output=False):
             res.append(line)
         continue
 
-    if env:
-        env.update(newenv)
-    else:
-        env = newenv
-    if output: return (env,'\n'.join(res))
-    return env
+    if output: return (newenv,'\n'.join(res))
+    return newenv
 
 
 def make(target='',env=None,dir=None,output=False):
@@ -161,8 +141,13 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     if res is not 0:
         if dir: fs.goback()
         if isinstance(cmdstr,list): cmdstr = " ".join(cmdstr)
-        err = 'Command: %s failed with code %d'%(cmdstr,res)
+        err = 'Command: "%s" failed with code %d run from directory "%s"'%(cmdstr,res,dir)
         log.error(err)
+        log.error('START ENV DUMP:')
+        envdump = []
+        for k,v in env.items():
+            envdump.append('%s=%s'%(k,v))
+        log.error('\n%s\nEND ENV DUMP:'%'\n'.join(envdump))
         from exception import CommandFailure
         raise CommandFailure,err
 
