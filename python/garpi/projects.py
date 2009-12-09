@@ -69,17 +69,25 @@ class Project:
         package.'''
         from command import source
         import fs
+
+        #print 'projects.env(): Source %s/setup.sh'%fs.projects()
         env1 = source('./setup.sh',dir=fs.projects())
-        if not rel_dir: rel_dir = self.rel_pkg()
-        if not rel_dir: return env1
+        if not rel_dir: 
+            rel_dir = self.rel_pkg()
+            #print 'Using rel_dir =',rel_dir
+
+        if not rel_dir: 
+            #print 'No rel_dir given'
+            return env1
+
         cmtdir = os.path.join(self.proj_dir(),rel_dir,'cmt')
         import cmt
         if not os.path.exists(cmtdir+'/setup.sh'):
             cmt.cmt('config',extra_env=env1,dir=cmtdir)
             pass
-        env2 = source('./setup.sh',dir=cmtdir)
-        env1.update(env2)
-        return env1
+        print 'projects.env(): Source %s/setup.sh'%cmtdir
+        env2 = source('./setup.sh',env=env1,dir=cmtdir)
+        return env2
 
     def cmd_inrel(self,cmdstr):
         'Run a command in the release package.  No-op if none defined.'
