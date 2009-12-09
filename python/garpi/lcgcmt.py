@@ -149,10 +149,15 @@ setenv CMTEXTRATAGS %s
         pkg = os.path.basename(bdir)
         cmtdir = os.path.join(bdir,'cmt')
 
+        envdir = os.path.join('LCG_Builders',pkg)
+        env = self.env(envdir)
+        #print 'G4 env from %s'%envdir
+        #for k,v in env.items():
+        #    if k[:2] == 'G4': print '%s=%s'%(k,v)
+        #print 'SITEROOT=%s'%env['SITEROOT']
+
         import fs
         fs.goto(cmtdir)
-
-        env = self.env(os.path.join('LCG_Builders',pkg))
         
         import cmt
         for what in ['get','config','make','install']:
