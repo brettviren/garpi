@@ -53,15 +53,22 @@ def env(pkgdir = None):
     or a list of ones. This function will fail if called before
     cmt.build() has been run.'''
     from command import source
-    environ = source('./setup.sh',dir=os.path.join(srcdir(),'mgr'))
+
+    mgrdir = os.path.join(srcdir(),'mgr')
+    #print 'cmt.evn: source %s/setup.sh'%mgrdir
+    environ = source('./setup.sh',dir=mgrdir)
+
     if not pkgdir:
+        #print 'cmt.env: No package dir'
         return environ
+
     if type(pkgdir) == type(""): pkgdir = [pkgdir]
     for pdir in pkgdir:
         if pdir[-4:] != '/cmt':
             pdir += '/cmt'
         if not os.path.exists(os.path.join(pdir,'setup.sh')):
             cmt('config',dir=pdir)
+        #print 'cmt.env: source %s/setup.sh'%pdir
         environ.update(source('./setup.sh',dir=pdir))
     return environ
 
@@ -217,7 +224,9 @@ def get_package_env(pkg_dir):
         cmt("config",dir=path)
 
     from command import source
+    #print 'cmt.get_package_env: source %s/setup.sh'%fs.projects()
     extra_env = source('./setup.sh',env=env(),dir=fs.projects())
+    #print 'cmt.get_package_env: source %s/setup.sh'%path
     extra_env = source('./setup.sh',env=extra_env,dir=path)
     return extra_env
 
