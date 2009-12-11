@@ -11,6 +11,18 @@ def try_traceback(a):
 
 from logging import _srcfile
 class MyLogger(logging.Logger):
+    DEBUG   = logging.DEBUG
+    INFO    = logging.INFO
+    WARN    = logging.WARN
+    WARNING = logging.WARNING
+    ERROR   = logging.ERROR
+    FATAL   = logging.FATAL
+
+
+    def log(self, level, msg, *args, **kwargs):
+        logging.Logger.log(self, level, msg, *args, **kwargs)
+        try_traceback(msg)
+        return msg
     def debug(self, msg, *args, **kwargs):
         logging.Logger.debug(self, msg, *args, **kwargs)
         try_traceback(msg)
