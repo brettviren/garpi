@@ -34,7 +34,7 @@ def prefix():
     return _prefix
 
 def gitexe():
-    return os.path.join(prefix(),'bin/git')
+    return 'git'
 
 def download():
     'Download GIT source tar file into external area.'
@@ -95,7 +95,9 @@ def setup():
     return fs.setup() + '/00_git.sh'
 
 def gitcmd(cmdstr):
-    return cmd('%s %s'%(gitexe(),cmdstr),output=True)
+    from command import source
+    env = source(fs.projects() + '/setup.sh')
+    return cmd('%s %s'%(gitexe(),cmdstr),env=env,output=True)
 
 def clone(url,target):
     ret = []
