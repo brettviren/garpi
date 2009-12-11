@@ -37,22 +37,26 @@ class Lcgcmt(Project):
         found = cmt.macro('host-cmtconfig',extra_env=extra_env,dir=rel_path).strip()
         platform = cmt.macro('LCG_platform',extra_env=extra_env,dir=rel_path).strip()
         assert cmtconfig == found, 'Error: given CMTCONFIG not supported: "%s" != "%s"'%(cmtconfig,found)
-        assert cmtconfig == platform, 'Error: CMTCONFIG will differ from platform: "%s" != "%s"'%(cmtconfig,basesystem)
+        assert cmtconfig == platform, 'Error: CMTCONFIG will differ from platform: "%s" != "%s"'%(cmtconfig,platform)
         return
 
 
     def init_project(self,deps=None):
         'Initialize the LCGCMT project'
         import fs,os
+        from ConfigParser import NoOptionError
         setupdir = fs.setup()
         fs.assure(setupdir)
 
         base = fs.setup()
 
         tags = ['garpi']
-        extra_tags = eval(self.get_config('extra_tags'))
-        if extra_tags is not None:
+        try:
+            extra_tags = eval(self.get_config('extra_tags'))
             tags += extra_tags
+        except NoOptionError:
+            pass
+
         tags = ','.join(tags)
         #print 'setting extra tags =',tags
 
