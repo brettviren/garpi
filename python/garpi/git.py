@@ -34,7 +34,8 @@ def prefix():
     return _prefix
 
 def gitexe():
-    return os.path.join(prefix(),'bin/git')
+    'Return name of git executable'
+    return "git"
 
 def download():
     'Download GIT source tar file into external area.'
