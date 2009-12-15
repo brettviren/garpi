@@ -48,7 +48,11 @@ def get_svn(url,target,overwrite):
 
     fs.assure(target)
     import svn
-    svn.svncmd('co %s %s'%(url,target))
+    if cmd == 'up':
+        fs.goto(target)
+        svn.svncmd('up')
+    else:
+        svn.svncmd('%s %s %s'%(cmd,url,target))
     return target
 
 def get_http_ftp(what,url,target,overwrite):

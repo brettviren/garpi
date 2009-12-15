@@ -47,11 +47,11 @@ def unpack():
     return target
 
 def env(pkgdir = None):
-    '''Return the environment after sourceing CMT's setup.sh.  If
+    """Return the environment after sourceing CMT's setup.sh.  If
     pkgdir is given additional environment from the additional package
     level setup will be added.  This can be a single package directory
     or a list of ones. This function will fail if called before
-    cmt.build() has been run.'''
+    cmt.build() has been run."""
     from command import source
 
     mgrdir = os.path.join(srcdir(),'mgr')
@@ -109,12 +109,12 @@ def setup():
 #------ build above, usage below --------#
 
 def cmt(cmdstr='',extra_env=None,dir=None,output=False):
-    '''Run "cmt [cmdstr]".  The environment in which the cmt
+    """Run 'cmt [cmdstr]'.  The environment in which the cmt
     executable is run is initially composed of the application
     environment.  It is then modified by sourcing CMT's setup script.
     Finally, any extra_env that is passed in will be used to update
     the env in which the command is run.  The dir and output options
-    are passed to command.cmd.'''
+    are passed to command.cmd."""
     from command import cmd,source
     environ = env()
     if extra_env: environ.update(extra_env)

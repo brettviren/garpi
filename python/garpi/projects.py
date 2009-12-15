@@ -85,7 +85,7 @@ class Project:
         if not os.path.exists(cmtdir+'/setup.sh'):
             cmt.cmt('config',extra_env=env1,dir=cmtdir)
             pass
-        print 'projects.env(): Source %s/setup.sh'%cmtdir
+        #print 'projects.env(): Source %s/setup.sh'%cmtdir
         env2 = source('./setup.sh',env=env1,dir=cmtdir)
         return env2
 

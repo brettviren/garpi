@@ -33,7 +33,7 @@ def source (filename,env=None,dir=None,output=False):
     magic='magic%dmagic'%os.getpid()
     sourcer = os.path.dirname(__file__) + '/source.sh'
     cmdstr = "%s %s %s"%(sourcer,filename,magic)
-    cmdres = cmd(cmdstr,env,dir,True)
+    cmdres = cmd(cmdstr,env,dir,True,loglevel=log.DEBUG)
 
     res = []
     newenv = {}
@@ -59,7 +59,7 @@ def make(target='',env=None,dir=None,output=False):
     'Make the given target'
     return cmd('make %s'%target,env,dir,output)
 
-def cmd(cmdstr,env=None,dir=None,output=False):
+def cmd(cmdstr,env=None,dir=None,output=False,loglevel=log.INFO):
     '''
     Run an arbitrary command given by first non-optional argument.  If
     it is a full command line string it will be broken down via a
@@ -73,6 +73,8 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     directory.
 
     If output is True, the stdout/stderr will be returned as a string.
+
+    Passing loglevel to set at what level the output should be logged.
 
     Avoid calling this function in favor of specific command function
     '''
@@ -99,7 +101,8 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     #log.info('\n'.join(map(lambda x: '"%s" --> "%s"'%x, env.iteritems())))
 
     # Start the command
-    # print 'cmdstr="%s", env=%s'%(cmdstr,env)
+    #print 'cmdstr="%s", env=%s'%(cmdstr,env)
+
     try:
         proc = Popen(cmdstr,stdout=PIPE,stderr=STDOUT,universal_newlines=True,env=env)
     except OSError,err:
@@ -121,7 +124,7 @@ def cmd(cmdstr,env=None,dir=None,output=False):
 
         if line:
             line = line.strip()
-            log.info(line)
+            log.log(loglevel,line)
             if output:
                 out.append(line)
 
@@ -130,7 +133,7 @@ def cmd(cmdstr,env=None,dir=None,output=False):
         for line in proc.stdout.readlines():
             if line:
                 line = line.strip()
-                log.info(line)
+                log.log(loglevel,line)
                 if output:
                     out.append(line)
         break
@@ -140,6 +143,7 @@ def cmd(cmdstr,env=None,dir=None,output=False):
     # Check return code
     if res is not 0:
         if dir: fs.goback()
+        else: dir = os.getcwd()
         if isinstance(cmdstr,list): cmdstr = " ".join(cmdstr)
         err = 'Command: "%s" failed with code %d run from directory "%s"'%(cmdstr,res,dir)
         log.error(err)
