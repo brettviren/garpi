@@ -33,6 +33,7 @@ def get_git(scheme,url,target,overwrite,tag):
             git.checkout(tag)
         else:
             # git 1.5 does not put remotes/ like 1.6 does
+            from exception import CommandFailure
             try:
                 git.checkout('origin/'+tag,tag)
             except CommandFailure:
