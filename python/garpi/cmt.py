@@ -90,6 +90,7 @@ def build():
     if os.path.exists(cmtexe):
         log.info('CMT appears to already have been built: %s'%cmtexe)
     else:
+        log.info('CMT rebuild, not found at: %s'%cmtexe)
         make(env=environ)
     return cmtexe
 

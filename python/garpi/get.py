@@ -22,6 +22,7 @@ def get_git(scheme,url,target,overwrite,tag):
     git.fetch()
     out = git.branch()
     for line in out.split('\n'):
+        if not line: continue
         if line[0] != '*': continue
         out = line.split()[1]
         break

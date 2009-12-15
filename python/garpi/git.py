@@ -82,7 +82,7 @@ def build():
         log.info('git appears to already have been installed to %s'%instpath)
     else:
         make('install')
-    return exe
+    return
 
 def setup():
     'Add GIT setup scripts to the setup directory.'
