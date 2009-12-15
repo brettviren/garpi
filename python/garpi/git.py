@@ -67,18 +67,19 @@ def build():
 
     from command import cmd,make
 
+    instpath=prefix()
+
     if not os.path.exists('config.status'):
         log.info('configuring git')
-        cmd('./configure --prefix=%s'%prefix())
+        cmd('./configure --prefix=%s'%instpath)
 
     if os.path.exists('git'):
         log.info('git appears to already have been built')
     else:
         make()
 
-    exe = gitexe()
-    if os.path.exists(exe):
-        log.info('git appears to already have been installed to %s'%exe)
+    if os.path.exists(instpath):
+        log.info('git appears to already have been installed to %s'%instpath)
     else:
         make('install')
     return exe
