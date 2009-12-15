@@ -32,7 +32,11 @@ def get_git(scheme,url,target,overwrite,tag):
         if tag in lbranches:
             git.checkout(tag)
         else:
-            git.checkout('origin/'+tag,tag)
+            # git 1.5 does not put remotes/ like 1.6 does
+            try:
+                git.checkout('origin/'+tag,tag)
+            except CommandFailure:
+                git.checkout('remotes/origin/'+tag,tag)
     git.pull()
     fs.goback()
     return
