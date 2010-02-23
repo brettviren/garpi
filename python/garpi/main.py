@@ -70,7 +70,8 @@ class Garpi:
 
     def do_install_prerequisites(self):
         self.do_install_cmt()
-        self.do_install_git()
+        if self.cli.file.has_section('git'):
+            self.do_install_git()
         return
 
     def do_install_cmt(self,what="all"):

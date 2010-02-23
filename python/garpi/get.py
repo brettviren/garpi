@@ -61,6 +61,24 @@ def get_svn(url,target,overwrite):
         svn.svncmd('%s %s %s'%(cmd,url,target))
     return target
 
+def get_cvs(url,module,tag,target,overwrite):
+    cmd = 'co'
+    if os.path.exists(target+'/CVS'):
+        if overwrite:
+            cmd = 'up'
+        else:
+            log.info('Pre-existing file found, not re-getting %s'%target)
+            return target
+
+    fs.assure(target)
+    import cvs
+    if cmd == 'up':
+        fs.goto(target)
+        cvs.cvscmd('up')
+    else:
+        cvs.cvscmd('-d %s %s %s %s'%(url,cmd,module,target))
+    return target
+
 def get_http_ftp(what,url,target,overwrite):
     from urllib2 import Request, urlopen, URLError, HTTPError, ProxyHandler, build_opener, install_opener
     import shutil
@@ -131,6 +149,8 @@ def get(url,target,overwrite=False,tag=None):
     svn+TRANSPORT: - perform "svn co" using the remaining URL with
     'svn+' removed.  If overwritting, an "svn update" is done.
 
+    cvs+:TRANSPORT: - perform "cvsv co" using the remaining URL with
+    'cvs+' removed.  If overwritting, an "cvs update" is done.
     '''
 
     log.info('Getting url "%s" --> "%s"'%(url,target))
@@ -140,6 +160,7 @@ def get(url,target,overwrite=False,tag=None):
         return get_http_ftp(urlp[0],url,target,overwrite)
 
     scheme = urlp[0].split('+')
+    #print 'scheme=',scheme
 
     print urlp,scheme
     if urlp[0] == 'git' or scheme[0] == 'git':
@@ -147,6 +168,13 @@ def get(url,target,overwrite=False,tag=None):
 
     if scheme[0] == 'svn':
         return get_svn(scheme[1]+'://'+urlp[1]+'/'+urlp[2]+'/'+tag,target,overwrite)
+    if scheme[0] == 'cvs':
+        # get_cvs(url,module,tag,target,overwrite):
+        #print 'CVS: "%s", "%s", "%s"'%(urlp[0],urlp[1],urlp[2])
+        url = ':%s:%s%s'%(scheme[1],urlp[1],'/'.join(urlp[2].split('/')[:-1]))
+        module = urlp[2].split('/')[-1]
+        #print 'url=%s, module=%s'%(url,module)
+        return get_cvs(url,module,tag,target,overwrite)
 
     msg = 'Unhandled URL: "%s"'%url
     log.error(msg)

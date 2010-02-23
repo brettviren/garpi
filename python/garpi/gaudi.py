@@ -11,7 +11,27 @@ class Gaudi(Project):
 
     def download(self):
         url = self.url()
-        if url[:3] != 'git': return Project.download(self)
+        # Gaudi has a peculiar repository
+        if url[:3] == 'git': return self._download_git()
+        if url[:3] == 'svn' and 'cern.ch' in url: self._download_cern_svn()
+        return Project.download(self)
+
+    def _download_cern_svn(self):
+        import fs
+        from svn import svncmd
+        scheme = self.url().split('+')
+
+        if self.tag() == 'trunk':
+            url = '%s/trunk'%scheme[1]
+        else:
+            url = '%s/tags/GAUDI/GAUDI_%s'%(scheme[1],self.tag())
+        svncmd('co %s %s/gaudi'%(url,fs.projects()))
+        return
+
+            
+
+    def _download_git(self):
+        url = self.url()
         if url[4] == '+': url = url[4:]
         log.info(self.name +' download')
 
