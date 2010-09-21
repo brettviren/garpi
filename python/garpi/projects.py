@@ -54,11 +54,18 @@ class Project:
         a side effect the program will be in the projects directory
         that contains the downloaded project'''
         log.info(self.name +' download')
-        import fs
+        import fs, ConfigParser
         projdir = fs.projects()
         fs.goto(projdir,True)
         from get import get
-        get(self.url(),self.name,True,tag=self.tag())
+
+        try:
+            tag = self.tag()
+        except ConfigParser.NoOptionError:
+            tag = None
+
+        #print 'url="%s" name="%s" tag="%s"'%(self.url(),self.name,tag)
+        get(self.url(),self.name,True,tag=tag)
         fs.goback
         return
         
