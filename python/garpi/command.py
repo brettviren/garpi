@@ -29,7 +29,19 @@ def source (filename,env=None,dir=None,output=False):
     this dictionary, if True return a tuple with this dictionary and a
     string containing any output from the source command.'''
 
-    log.info('sourcing %s in %s'%(filename,os.getcwd()))
+    if dir is None:
+        dir = os.getcwd()
+
+    fullpath = os.path.join(dir,filename)
+
+    #print fullpath
+
+    if not os.path.exists(fullpath):
+        msg = 'no such file: "%s" in "%s"'%(filename,dir)
+        log.error(msg)
+        raise ValueError,msg
+
+    log.info('sourcing %s in %s'%(filename,dir))
     magic='magic%dmagic'%os.getpid()
     sourcer = os.path.dirname(__file__) + '/source.sh'
     cmdstr = "%s %s %s"%(sourcer,filename,magic)
