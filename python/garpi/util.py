@@ -88,9 +88,11 @@ class LogMaker(object):
         'Change the file name for the log'
         self.rfh.baseFilename = filename
         return
+
     def new_file(self,filename):
         self.set_file(filename)
-        self.rfh.doRollover()
+        #self.rfh.doRollover()
+        return
 
     def set_level(self,level):
         self.log.setLevel(level)
