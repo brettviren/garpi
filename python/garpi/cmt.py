@@ -46,6 +46,49 @@ def unpack():
     untar(tgz())
     return target
 
+def unique_path(path):
+    'Return a path with duplicates removed, keeping order, first wins.'
+    ret = []
+    for chunk in path.split(':'):
+        if chunk not in ret:
+            ret.append(chunk)
+            pass
+        continue
+    return ':'.join(ret)
+
+def update_env(old,new):
+    '''
+    Update environ dictionary "old" with the contents of "new".
+    PATH-like variables are handled.  Also returns the updated old.
+    '''
+    for k,v in new.iteritems():
+        new_v = v
+        if old.has_key(k):
+            if 'PATH' in k or ':' in old[k] or ':' in v: # is path-like 
+                new_v = unique_path(old[k] + ':' + v)
+                pass
+            pass
+        old[k] = new_v
+        continue
+    return old
+
+
+def merge_env(envs):
+    '''
+    Return a merged environ dictionary made from the given list of
+    environ dictionaries.  Any path-like variables will be merged such
+    that the final order is that of the envs that contain them with
+    duplicates removed.
+    '''
+    ret = {}
+    for env in envs:
+        if not ret:
+            ret.update(env)
+            continue
+        update_env(ret,env)
+    return ret
+
+
 def env(pkgdir = None):
     """Return the environment after sourceing CMT's setup.sh.  If
     pkgdir is given additional environment from the additional package
@@ -69,7 +112,7 @@ def env(pkgdir = None):
         if not os.path.exists(os.path.join(pdir,'setup.sh')):
             cmt('config',dir=pdir)
         #print 'cmt.env: source %s/setup.sh'%pdir
-        environ.update(source('./setup.sh',dir=pdir))
+        update_env(environ,source('./setup.sh',dir=pdir))
     return environ
 
 
@@ -118,8 +161,18 @@ def cmt(cmdstr='',extra_env=None,dir=None,output=False):
     are passed to command.cmd."""
     from command import cmd,source
     environ = env()
-    if extra_env: environ.update(extra_env)
-    return cmd('cmt '+cmdstr,env=environ,dir=dir,output=output)
+    if extra_env: update_env(environ,extra_env)
+    try:
+        ret = cmd('cmt '+cmdstr,env=environ,dir=dir,output=output)
+    except OSError,msg:
+        print msg
+        print 'PATH:'
+        for p in environ['PATH'].split(':'):
+            print '\t',p
+        #for k,v in environ.iteritems():
+        #    print '"%s" = "%s"'%(k,v)
+        raise
+    return ret
 
 def show(what,extra_env=None,delim = '=',dir=None):
     'Run "cmt show what".  Return dictionary of result'
