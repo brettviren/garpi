@@ -120,9 +120,6 @@ def get_http_ftp(what,url,target,overwrite):
     shutil.copyfileobj(res,targetfp)
     targetfp.close()
 
-    from util import untar
-    untar(targetfile)
-
     return target
 
 def uriparse(uri):

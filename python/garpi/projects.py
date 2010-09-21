@@ -2,7 +2,7 @@
 States handling projects
 '''
 
-from util import log
+from util import log, untar
 from exception import CommandFailure
 import os
 
@@ -66,6 +66,15 @@ class Project:
 
         #print 'url="%s" name="%s" tag="%s"'%(self.url(),self.name,tag)
         get(self.url(),self.name,True,tag=tag)
+        tarfile = os.path.basename(self.url())
+        if '.tgz' in tarfile or '.tar' in tarfile:
+            untar(tarfile)
+            dot = tarfile.find('.')
+            dirname = tarfile[:dot]
+            import shutil
+            shutil.move(dirname,self.name)
+            pass        
+
         fs.goback
         return
         
