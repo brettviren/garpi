@@ -109,9 +109,19 @@ def get_http_ftp(what,url,target,overwrite):
         raise IOError,'Failed to get '+url
 
 
-    fs.assure(os.path.dirname(target))
-    targetfp = open(target,"w")
+    dirname = os.path.dirname(target)
+    if dirname:
+        fs.assure(dirname)
+    else:
+        dirname = '.'
+    filename = os.path.basename(url)
+    targetfile = os.path.join(dirname,filename)
+    targetfp = open(targetfile,"w")
     shutil.copyfileobj(res,targetfp)
+    targetfp.close()
+
+    from util import untar
+    untar(targetfile)
 
     return target
 
