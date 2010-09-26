@@ -124,6 +124,19 @@ def build():
 
     from command import cmd,make,source
 
+    def stupid_hack():
+        # quick hack for v1r22.  this really doesn't belong here!
+        fp = open("../source/cmt_std.h")
+        for line in fp:
+            if 'climits' in line: return
+            continue
+        fp.close()
+        fp = open("../source/cmt_std.h","a")
+        fp.write("#include <climits>\n")
+        fp.close()
+        return
+    stupid_hack()
+
     # always run this in case user does something silly like move the
     # installation somewhere else 
     cmd('./INSTALL')
