@@ -1,0 +1,196 @@
+#!/bin/bash
+
+usage () {
+    cat <<EOF
+usage: autoinstall [options] command [args]
+
+options: 
+  -c <url>		: set URL for the config file
+  -g <url>		: set URL for GARPI
+  -f			: optimized-away things are force to happen
+EOF
+    exit 0
+}
+
+cfgurl_svn="https://lbne.bnl.gov/svn/installation/trunk/AutoInstall/config/interim-latest.cfg"
+cfgurl=$cfgurl_svn
+garpiurl_http="http://www.phy.bnl.gov/~bviren/garpi/releases/garpi-latest.tar.gz"
+garpiurl_git="ssh://gitosis@gateway.phy.bnl.gov/garpi"
+garpiurl="$garpiurl_http"
+force=""
+set -- `getopt c:g:fG $*`
+for arg in $* ; do
+    case $arg in
+	-c) cfgurl=$2; shift 2;;
+	-g) garpiurl=$2; shift 2;;
+	-G) garpiurl=$garpiurl_git; shift ;;
+	-f) force=yes ; shift ;;
+	--) shift; break;
+    esac
+done
+if [ -z "$1" ] ; then usage ; fi
+
+logfile=$(pwd)/autoinstall-$(date +%g%m%d-%H%M%S).log
+ln -sf $logfile autoinstall-latest.log
+
+log () {
+    echo $* >> $logfile 2>&1
+}
+info () {
+    echo $* 1>&2
+    log $*
+}
+err () {
+    info error: $*
+    exit 1
+}
+logcmd () {
+    $* >> $logfile 2>&1
+    ret=$?
+    if [ "$ret" != "0" ] ; then
+	err="command \"$*\" failed with \"$err\""
+    fi
+}
+
+logcmd date
+echo "Logging to $logfile and autoinstall-latest.log"
+
+find_exe () {
+    for exe in $*
+    do
+	found=$(which $exe)
+	if [ -z "$found" ] ; then continue; fi
+	echo $found
+	return
+    done
+    err "Failed to find executable from: $*"
+}
+
+download_file () {
+    url=$1 ; shift
+    fn=$(basename $url)
+    if [ -n "$force" ] ; then
+	rm -f $fn
+    fi
+    if [ ! -f $fn ] ; then
+	dl=$(find_exe wget curl)
+	logcmd $dl $url
+    fi
+    echo $fn
+}
+
+work_begin () {
+    if [ -d .aiwork ] ; then
+	rm -rf .aiwork
+    fi
+    mkdir .aiwork
+    cd .aiwork
+}
+work_end () {
+    cd ..
+    rm -rf .aiwork
+}
+
+get_garpi_http () {
+    url=$1 ; shift
+    if [ -z "$url" ] ; then url=$garpiurl; fi
+    download_file $url
+}
+make_absolute () {
+    fn=$1 ; shift
+    dn=$(dirname $fn)
+    if [ -z "$dn" -o "$dn" = "." ] ; then
+	echo $(pwd)/$fn
+    else
+	echo $fn
+    fi
+}
+unpack_tar () {
+    tarball=$(make_absolute $1) ; shift
+    work_begin
+    zipped=''
+    if echo $tarball|grep -q 'z$'; then zipped='-z'; fi
+    logcmd tar $zipped -xvf $tarball
+    dir=$(/bin/ls)
+    info unpacked dir is $dir
+    if [ -z "$dir" ] ; then
+	err "tarfile \"$tarball\" was empty"
+    fi
+    if [ -d ../$dir ] ; then
+	log "Removing ../$dir"
+	rm -rf ../$dir
+    fi
+    mv $dir ..
+    work_end
+    echo $dir
+}
+
+get_unpack_garpi_http () {
+    unpack_tar $(get_garpi_http)
+}
+
+get_unpack_garpi_git () {
+    if [ ! -d garpi ] ; then
+	logcmd git clone $garpiurl
+    fi
+    echo garpi
+}
+get_unpack_garpi () {
+    if [ "$garpiurl" = "$garpiurl_git" ] ; then
+	get_unpack_garpi_git
+    else
+	get_unpack_garpi_http
+    fi
+}
+
+
+get_config () {
+    url=$1 ; shift
+    if [ -z "$url" ] ; then url=$cfgurl; fi
+    download_file $url
+}
+
+initialize () {
+    cfg=$(get_config)
+    #info "got config: $cfg"
+    cfg=$(make_absolute $cfg)
+    #info "$cfg"
+    garpidir=$(get_unpack_garpi)
+    garpidir=$(make_absolute $garpidir)
+    info "Got garpidir \"$garpidir\""
+    cat <<EOF>ai-setup.sh
+garpi () {
+  export GARPIROOT=$garpidir
+  export PYTHONPATH=\$GARPIROOT/python\${PYTHONPATH:+:\$PYTHONPATH}
+  \$GARPIROOT/scripts/garpi -c $cfg
+}
+EOF
+}
+
+garpi_prereq () {
+    source ai-setup.sh
+    logcmd garpi setup
+    logcmd garpi install_cmt
+    if [ -n "$(grep ^url $cfgfile|grep '\Wgit\W')" -a -z "$(which git)" ] ; then
+	logcmd garpi install_git
+    fi
+}
+garpi_get_projects () {
+    logcmd garpi get_projects
+    logcmd garpi init_projects
+    export CMTCONFIG=$(garpi print_cmtconfig)
+    logcmd garpi test_cmtconfig $CMTCONFIG
+    cat <<EOF> garpi-setup.sh
+export CMTCONFIG=$CMTCONFIG
+EOF
+    
+
+everything () {
+    initialize
+    garpi_prereq
+
+}
+
+what=$1 ; shift
+eval $what $*
+

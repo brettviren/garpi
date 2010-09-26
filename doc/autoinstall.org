@@ -1,0 +1,107 @@
+Automatic Installation
+
+This describes how to use an automatic installation script to install
+the software.
+
+* Basic steps
+
+It takes three steps to take a green field and build everything.
+
+ 0. Go to an area to hold the installation
+
+#+BEGIN_SRC shell
+cd /path/to/install
+#+END_SRC
+
+ 0. Get the script from
+    http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall.
+    Click on the 'original format' link at the bottom.
+
+
+ 0. Let it do its thing:
+
+#+BEGIN_SRC shell
+./autoinstall everything
+#+END_SRC
+
+* Options
+
+To see available options run the =autoinstall= script with no arguments:
+
+#+begin_src shell
+./autoinstall
+#+end_src
+
+* Break it down
+
+The =autoinstall= script goes through several high level steps on its road to =everything=.  These are described here.
+
+** Initialization
+
+The initialization step can be run explicitly by doing:
+
+#+begin_src shell
+./autoinstall initialize
+#+end_src
+
+This will do three things:
+
+ 0. get a GARPI configuration file
+ 0. get an instance of GARPI
+ 0. produce an =ai-setup.sh= script 
+
+Sourcing the =ai-setup.sh= script defines some things to make it
+convenient to run GARPI, in particular a shell function called =garpi=
+that will run GARPI with the downloaded configuration file.
+
+** Prerequisites
+
+The next step uses GARPI to perform some prerequisite setup and
+installation.  
+
+#+begin_src shell
+./autoinstall garpi_prereq
+#+end_src
+
+This:
+
+ * makes the =projects/= directory to hold the CMT projects
+ * downloads and builds CMT
+ * downloads and builds =git=
+
+This last step of installing =git= is optional and will happen only if
+there are projects defined in the configuration file that require
+=git= and there is no system =git= installed.  SVN is assumed to
+already exist in the user's =PATH=.
+
+** Get project code
+
+This step will download the code for the projects defined in the
+configuration file, perform some initial setup of scripts to be used
+later to set one's environment and finally produce a =garpi-setup.sh=
+script needed for the next step.
+
+#+begin_src shell
+./autoinstall garpi_get_projects
+#+end_src
+
+** Download and build the external packages
+
+Depending on how many external packages the projects require, this
+step can take a long time.  The =autoinstall= script will use =garpi=
+to determine what external packages are needed, download and them.
+
+#+begin_src shell
+./autoinstall garpi_externals
+#+end_src
+
+For this to work, the CMT projects must have correct "=use="
+directives in their =cmt/requirements= files and there must be working
+=LCG_Builders= packages for all externals found.  See the GARPI and
+LCGCMT documentation for details.
+
+** Build the projects
+
+Depending on the size of the CMT projects this final step can take a
+long time as well.
+
