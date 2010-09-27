@@ -64,7 +64,7 @@ performed.
 The =autoinstall= script goes through several high level steps on its
 road to =everything=.  These are described here.
 
-* Options
+** Options
 
 To see available options run the =autoinstall= script with no arguments:
 

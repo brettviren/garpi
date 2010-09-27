@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+
+<title>Automatic Installation</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2010-09-27 09:50:58 EDT"/>
+<meta name="author" content="Brett Viren"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Automatic Installation</h1>
+
+<p>This documents GARPI's high-level installation script, <code>autoinstall</code>.
+It automates downloading GARPI and using it to install LCGCMT based
+CMT projects.  The only thing left up to the user is to provide a
+GARPI configuration file.
+</p>
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Basic steps </a>
+<ul>
+<li><a href="#sec-1.1">1.1 Logging </a></li>
+<li><a href="#sec-1.2">1.2 Resulting directories </a>
+<ul>
+<li><a href="#sec-1.2.1">1.2.1 <code>external/</code> </a></li>
+<li><a href="#sec-1.2.2">1.2.2 <code>projects/</code> </a></li>
+<li><a href="#sec-1.2.3">1.2.3 <code>garpi/</code> </a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-2">2 Break it down </a>
+<ul>
+<li><a href="#sec-2.1">2.1 Options </a></li>
+<li><a href="#sec-2.2">2.2 Initialization </a></li>
+<li><a href="#sec-2.3">2.3 Prerequisites </a></li>
+<li><a href="#sec-2.4">2.4 Get project code </a></li>
+<li><a href="#sec-2.5">2.5 Set <code>CMTCONFIG</code> </a></li>
+<li><a href="#sec-2.6">2.6 Download and build the external packages </a></li>
+<li><a href="#sec-2.7">2.7 Build the projects </a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Basic steps </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<p>
+It takes three steps to take a green field and build everything.
+</p>
+<ol>
+<li>
+Go to an area to hold the installation
+
+
+</li>
+</ol>
+
+
+<pre class="src src-shell">cd /path/to/install
+</pre>
+
+
+
+
+<ol>
+<li>
+Get the script from: <a href="http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text">http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text</a>
+
+
+</li>
+</ol>
+
+
+<pre class="src src-shell">wget http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text
+</pre>
+
+
+
+
+<ol>
+<li>
+Let it do its thing:
+
+
+</li>
+</ol>
+
+
+<pre class="src src-shell">./autoinstall -c garpi.cfg everything
+</pre>
+
+
+
+
+
+</div>
+
+<div id="outline-container-1.1" class="outline-3">
+<h3 id="sec-1.1"><span class="section-number-3">1.1</span> Logging </h3>
+<div class="outline-text-3" id="text-1.1">
+
+
+<p>
+As <code>autoinstall</code> runs it produces logging information in
+<code>autoinstall-latest.log</code>.  This is actually a symlink to the log file
+produced by the most recent invocation of <code>autoinstall</code>.  Each time
+the underlying <code>garpi</code> script is run it appends to a <code>garpi.log</code> file.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-1.2" class="outline-3">
+<h3 id="sec-1.2"><span class="section-number-3">1.2</span> Resulting directories </h3>
+<div class="outline-text-3" id="text-1.2">
+
+
+<p>
+After a successful install you will find the following directories:
+</p>
+
+</div>
+
+<div id="outline-container-1.2.1" class="outline-4">
+<h4 id="sec-1.2.1"><span class="section-number-4">1.2.1</span> <code>external/</code> </h4>
+<div class="outline-text-4" id="text-1.2.1">
+
+
+<p>
+This holds the installation areas of the external (non-CMT) packages.
+Besides the per-package sub directories there is a cache holding the
+downloaded tar files in <code>external/tarFiles/</code>.  The build area is also
+distinct as is at <code>external/build/</code>.  Both may be removed after a
+successful installation.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-1.2.2" class="outline-4">
+<h4 id="sec-1.2.2"><span class="section-number-4">1.2.2</span> <code>projects/</code> </h4>
+<div class="outline-text-4" id="text-1.2.2">
+
+
+<p>
+This holds all CMT projects listed in the configuration file plus a
+<code>setup/</code> project used for environment setup.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-1.2.3" class="outline-4">
+<h4 id="sec-1.2.3"><span class="section-number-4">1.2.3</span> <code>garpi/</code> </h4>
+<div class="outline-text-4" id="text-1.2.3">
+
+
+<p>
+This sub directory, or one named like <code>garpi-VERSION</code> holds the garpi
+code that was used to do the installation.  It can be removed after a
+successful installation but will be useful if future updates will be
+performed.
+</p>
+
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Break it down </h2>
+<div class="outline-text-2" id="text-2">
+
+
+<p>
+The <code>autoinstall</code> script goes through several high level steps on its
+road to <code>everything</code>.  These are described here.
+</p>
+
+</div>
+
+<div id="outline-container-2.1" class="outline-3">
+<h3 id="sec-2.1"><span class="section-number-3">2.1</span> Options </h3>
+<div class="outline-text-3" id="text-2.1">
+
+
+<p>
+To see available options run the <code>autoinstall</code> script with no arguments:
+</p>
+
+
+
+<pre class="src src-shell">./autoinstall
+</pre>
+
+
+
+
+<p>
+Not all options are required for all steps.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2.2" class="outline-3">
+<h3 id="sec-2.2"><span class="section-number-3">2.2</span> Initialization </h3>
+<div class="outline-text-3" id="text-2.2">
+
+
+<p>
+The initialization step can be run explicitly by doing:
+</p>
+
+
+
+<pre class="src src-shell">./autoinstall -c garpi.cfg initialize
+</pre>
+
+
+
+
+<p>
+A configuration file must be specified.  It can be a relative or
+absolute file path or it can be a URL.
+</p>
+<p>
+This step will do three things:
+</p>
+<ol>
+<li>
+get a GARPI configuration file
+</li>
+<li>
+get an instance of the GARPI code
+</li>
+<li>
+produce an <code>ai-setup.sh</code> script 
+
+</li>
+</ol>
+
+<p>Sourcing the <code>ai-setup.sh</code> script defines some things to make it
+convenient to run GARPI, in particular a shell function called <code>garpi</code>
+that will run GARPI with the downloaded configuration file.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2.3" class="outline-3">
+<h3 id="sec-2.3"><span class="section-number-3">2.3</span> Prerequisites </h3>
+<div class="outline-text-3" id="text-2.3">
+
+
+<p>
+The next step uses GARPI to perform some prerequisite setup and
+installation.  
+</p>
+
+
+
+<pre class="src src-shell">./autoinstall prereq
+</pre>
+
+
+
+
+<p>
+No options are required.  The <code>ai-setup.sh</code> script from the prior
+stage is used.
+</p>
+<p>
+This step:
+</p>
+<ul>
+<li>
+makes the <code>projects/</code> directory to hold the CMT projects
+</li>
+<li>
+downloads and builds CMT
+</li>
+<li>
+downloads and builds <code>git</code>
+
+</li>
+</ul>
+
+<p>Installing <code>git</code> is optional and will happen only if there are
+projects defined in the configuration file that require <code>git</code> and
+there is no system <code>git</code> installed.  SVN is assumed to already exist
+in the user's <code>PATH</code>.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2.4" class="outline-3">
+<h3 id="sec-2.4"><span class="section-number-3">2.4</span> Get project code </h3>
+<div class="outline-text-3" id="text-2.4">
+
+
+<p>
+This step will download the code for the projects defined in the
+configuration file and perform some initial setup of scripts to be used
+later to set one's environment.
+</p>
+
+
+
+<pre class="src src-shell">./autoinstall get_projects
+</pre>
+
+
+
+
+<p>
+No options are needed.  The <code>ai-setup.sh</code> file from the initialize
+step is reused.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2.5" class="outline-3">
+<h3 id="sec-2.5"><span class="section-number-3">2.5</span> Set <code>CMTCONFIG</code> </h3>
+<div class="outline-text-3" id="text-2.5">
+
+
+<p>
+The <code>CMTCONFIG</code> environment variable tells CMT what platform to build
+for.  The <code>autoinstall</code> script will try to detect this via <code>garpi</code> and
+write the results to a <code>cmtconfig-setup.sh</code>.
+</p>
+
+
+
+<pre class="src src-shell">./autoinstall cmtconfig
+</pre>
+
+
+
+
+<p>
+If this step fails it likely means you are using an unknown platform.
+You will need to introduce it to LCGCMT by adding lines in
+</p>
+
+
+
+<pre class="src src-shell">projects/lcgcmt/LCG_Settings/cmt/requirements
+</pre>
+
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2.6" class="outline-3">
+<h3 id="sec-2.6"><span class="section-number-3">2.6</span> Download and build the external packages </h3>
+<div class="outline-text-3" id="text-2.6">
+
+
+<p>
+Depending on how many external packages the projects require, this
+step can take a long time.  The <code>autoinstall</code> script will use <code>garpi</code>
+to determine what external packages are needed, download and them.
+</p>
+
+
+
+<pre class="src src-shell">./autoinstall externals
+</pre>
+
+
+
+
+<p>
+For this to work, the CMT projects must have correct "<code>use</code>"
+directives in their <code>cmt/requirements</code> files and there must be working
+<code>LCG_Builders</code> packages for all externals found.  See the GARPI and
+LCGCMT documentation for details.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2.7" class="outline-3">
+<h3 id="sec-2.7"><span class="section-number-3">2.7</span> Build the projects </h3>
+<div class="outline-text-3" id="text-2.7">
+
+
+<p>
+Depending on the size of the CMT projects this final step can take a
+long time as well.
+</p>
+</div>
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: Brett Viren
+<a href="mailto:bv@bnl.gov">&lt;bv@bnl.gov&gt;</a>
+</p>
+<p class="date"> Date: 2010-09-27 09:50:58 EDT</p>
+<p class="creator">HTML generated by org-mode 6.28trans in emacs 24</p>
+</div>
+</div>
+</body>
+</html>
