@@ -221,8 +221,11 @@ externals () {
 
 everything () {
     initialize
-    garpi_prereq
-
+    prereq
+    get_projects
+    cmtconfig
+    externals
+    #projects
 }
 
 what=$1 ; shift
