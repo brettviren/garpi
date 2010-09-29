@@ -86,7 +86,7 @@ def get_http_ftp(what,url,target,overwrite):
     if os.path.exists(target):
         if overwrite:
             log.info('Removing pre-existing file %s'%target)
-            os.remove(target)
+            shutil.rmtree(target)
         else:
             log.info('Pre-existing file found, not re-getting %s'%target)
             return target
