@@ -1,0 +1,35 @@
+#!/usr/bin/env python
+'''
+garpi-setenv - provide environment setup for GARPI based releases and
+personal projects.
+
+Usage: 
+
+  garpi-setenv [options] [file.cfg ...]
+
+More information at:
+
+  https://wiki.bnl.gov/dusel/
+
+'''
+
+import os, sys
+
+basedir = os.path.dirname(__file__)
+basedir = os.path.dirname(basedir)
+sys.path.append(os.path.join(basedir,'python'))
+
+try:
+    from garpi.setenv.main import Main
+    from garpi.setenv.config import Config
+except ImportError,msg:
+    print msg
+    print 'Python path:\n' + '\n'.join(sys.path)
+    sys.exit(1)
+if '__main__' == __name__:
+    c = Config(sys.argv[1:])
+    if not sys.argv[1:]:
+        c.cmdline_parser.print_help(file = sys.stderr)
+        sys.exit(1)
+    m = Main(c,os.environ)
+    m()
