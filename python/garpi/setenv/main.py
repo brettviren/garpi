@@ -3,8 +3,8 @@
 A main class for garpi-setenv
 '''
 
-from config import Config
-from command import source, cmd
+from garpi.setenv.config import Config
+from garpi.setenv.command import source, cmd
 import os,sys, pickle
 
 class Main(object):
@@ -115,33 +115,41 @@ Otherwise, rerun with '-h' to see more help.
     def gen_scripts(self):
         'Generate scripts for user to source'
         prefix = self.cfg.opts.generate_scripts
-        path = os.path.basename(prefix)
-        if not os.path.exists(path):
+        path = os.path.dirname(prefix)
+        if path and not os.path.exists(path):
+            #print 'Making intermediate path:',path,prefix
             os.makedirs(path)
 
-        name = self.cfg.opts.name_for_scripts
-
-        sys.stderr.write('Generating %s.sh with name %s\n'%(prefix,name))
+        cfg = {
+            'name':self.cfg.opts.name_for_scripts,
+            'path':os.path.abspath(sys.argv[0]),
+            'defcfg':self.cfg.opts.default_config,
+            }
+        
+        sys.stderr.write('Generating shell function/alias %s\n'%cfg['name'])
+        sys.stderr.write('Generating %s.sh\n'%prefix)
         bsh = open(prefix+'.sh','w')
         bsh.write('''#!/bin/sh
-%s () {
-    file="/tmp/%s.${USER}.$$"
-    %s -s bash $* > $file ;
+%(name)s () {
+    file="/tmp/%(name)s.${USER}.$$"
+    %(path)s -s bash $* %(defcfg)s > $file ;
     while [ -n "$1" ] ; do 
         shift;
     done;
     source "$file"
     rm -f "$file"
 }
-'''%(name,name,os.path.abspath(sys.argv[0])))
+'''%cfg)
         bsh.close()
 
         sys.stderr.write('Generating %s.csh\n'%prefix)
         csh = open(prefix+'.csh','w') # abomination
         csh.write('''#!/bin/csh
 setenv SHELL /bin/tcsh
-alias %s 'set file=/tmp/%s.${USER}.$$; %s -s tcsh \!* > ${file}; source ${file}; rm -f ${file}'
-'''%(name,name,os.path.abspath(sys.argv[0])))
+alias %(name)s 'set file=/tmp/%(name)s.${USER}.$$; %(path)s -s tcsh \!* %(defcfg)s > ${file}; source ${file}; rm -f ${file}'
+'''%cfg)
+        csh.close()
+        return
 
     def stored_env_filename(self):
         'Return filename to for stored env'
@@ -263,8 +271,12 @@ alias %s 'set file=/tmp/%s.${USER}.$$; %s -s tcsh \!* > ${file}; source ${file};
     def _setup_base(self):
         'Set up the base release'
         self._setup_cmt()
-        path = self.cfg.base_release
-        path = os.path.join(path,'dybgaudi/DybRelease/cmt')
+        rp = self.cfg.release_package
+        if not rp: return
+        if rp[0] != '/':
+            br = self.cfg.base_release
+            rp = os.path.join(br,rp)
+        path = os.path.join(rp,'cmt')
         sys.stderr.write('source setup.sh in %s\n'%path)
         self.env = source('setup.sh',env=self.env,path=path)
         return
@@ -316,7 +328,7 @@ alias %s 'set file=/tmp/%s.${USER}.$$; %s -s tcsh \!* > ${file}; source ${file};
 
     def emit(self,env,fp):
         'Print to file object the shell settings.'
-        fp.write('# main environment #\n')
+        fp.write('# main environment with %d cmds#\n'%len(env))
         cmds = []
         for k,v in env.iteritems():
             cmds.append(("set",(k,v)))
@@ -348,6 +360,7 @@ alias %s 'set file=/tmp/%s.${USER}.$$; %s -s tcsh \!* > ${file}; source ${file};
         return
 
     def emit_one_generic(self,cmd,args,fp):
+        sys.stderr.write('emit_one_generic: %s %s\n'%(cmd,str(args)))
         if cmd == "source": 
             fp.write('source %s\n'%args[0])
             return
