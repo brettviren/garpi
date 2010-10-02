@@ -89,11 +89,12 @@ This step will do three things:
 
  0. get a GARPI configuration file
  0. get an instance of the GARPI code
- 0. produce an =ai-setup.sh= script 
+ 0. produce an =garpi-setup.sh= script 
 
-Sourcing the =ai-setup.sh= script defines some things to make it
-convenient to run GARPI, in particular a shell function called =garpi=
-that will run GARPI with the downloaded configuration file.
+Sourcing the =garpi-setup.sh= script defines some things to make it
+convenient to run GARPI directly, in particular it defines a shell
+function called =garpi= that will run GARPI with the downloaded
+configuration file.
 
 ** Prerequisites
 
@@ -104,7 +105,7 @@ installation.
 ./autoinstall prereq
 #+end_src
 
-No options are required.  The =ai-setup.sh= script from the prior
+No options are required.  The =garpi-setup.sh= script from the prior
 stage is used.
 
 This step:
@@ -128,7 +129,7 @@ later to set one's environment.
 ./autoinstall get_projects
 #+end_src
 
-No options are needed.  The =ai-setup.sh= file from the initialize
+No options are needed.  The =garpi-setup.sh= file from the initialize
 step is reused.
 
 ** Set =CMTCONFIG=
@@ -148,6 +149,8 @@ You will need to introduce it to LCGCMT by adding lines in
 projects/lcgcmt/LCG_Settings/cmt/requirements
 #+end_src
 
+If this step succeeds it will add a setup script to =projects/setup/=.
+This will define the default CMTCONFIG for users of this installation.
 
 ** Download and build the external packages
 

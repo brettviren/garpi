@@ -170,7 +170,7 @@ initialize () {
     garpidir=$(get_unpack_garpi)
     garpidir=$(make_absolute $garpidir)
     #info "Got garpidir \"$garpidir\""
-    cat <<EOF>ai-setup.sh
+    cat <<EOF>garpi-setup.sh
 garpi () {
   export GARPIROOT=$garpidir
   export GARPICONFIG=$cfg
@@ -181,7 +181,7 @@ EOF
 }
 
 prereq () {
-    source ai-setup.sh
+    source garpi-setup.sh
     logcmd garpi setup
     logcmd garpi install_cmt
     if [ -z "$cfgurl" ] ; then
@@ -196,14 +196,14 @@ prereq () {
     fi
 }
 get_projects () {
-    source ai-setup.sh
+    source garpi-setup.sh
     info "Getting projects"
     logcmd garpi get_projects
     info "Initializing projects"
     logcmd garpi init_projects
 }
 cmtconfig () {
-    source ai-setup.sh
+    source garpi-setup.sh
     export CMTCONFIG=$(garpi print_cmtconfig)
     logcmd garpi test_cmtconfig $CMTCONFIG
     info "Found CMTCONFIG=$CMTCONFIG"
@@ -214,7 +214,7 @@ EOF
 }    
 
 externals () {
-    source ai-setup.sh
+    source garpi-setup.sh
     source cmtconfig-setup.sh
     info "Installing externals"
     logcmd garpi externals
