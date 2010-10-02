@@ -69,7 +69,7 @@ CMTPROJECTPATH=$SITEROOT/%s
 export CMTPROJECTPATH
 CMTEXTRATAGS=%s
 export CMTEXTRATAGS
-        '''%(fs.base(),fs.name(),tags))
+'''%(fs.base(),fs.name(),tags))
         sh.close()
 
         # C(rappy) Shell
