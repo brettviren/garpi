@@ -180,7 +180,9 @@ class Config(object):
                           help='Give a prefix for .sh and .csh scripts to be generated.')
         parser.add_option('-N','--name-for-scripts',type='string',default="garpi-setenv",
                           help='Give a name to use for the setup shell function/alias when generating scripts.')
-
+        parser.add_option('-D','--default-config',type='string',default="",
+                          help='Give an absolute path to a default configuration file.')
+        
 
         parser.add_option('-h','--help',action='store_true',default=False,
                           help='Print out this help message')
