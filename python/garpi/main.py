@@ -161,6 +161,36 @@ class Garpi:
             print '%s ok.'%cc
         return
 
+    def do_init_cmtconfig(self,cmtconfig = None):
+        'Add setting CMTCONFIG to setup project.'
+        import os
+        if cmtconfig is None:
+            cmtconfig = os.getenv('CMTCONFIG',None)
+        if cmtconfig is None:
+            cmtconfig = self.lcgcmt.cmtconfig()
+        if cmtconfig is None:
+            raise ValueError, 'Unable to get good CMTCONFIG'
+        if isinstance(cmtconfig,list): cmtconfig = cmtconfig[0]
+        print 'Saving CMTCONFIG =',cmtconfig
+        import fs
+        base = fs.setup()
+
+        # Bourne Shell
+        sh = open(os.path.join(base,'20_cmtconfig.sh'),'w')
+        sh.write('''#!/bin/sh
+CMTCONFIG=%s
+export CMTCONFIG
+'''%cmtconfig)
+        sh.close()
+
+        # C(rappy) Shell
+        csh = open(os.path.join(base,'20_cmtconfig.csh'),'w')
+        csh.write('''#!/bin/csh
+setenv CMTCONFIG %s
+'''%cmtconfig)
+        csh.close()
+        return        
+
     def do_print_externals(self):
         'Print externals required by configured projects'
         pkglist = self.externals()
