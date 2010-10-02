@@ -80,10 +80,7 @@ fi
     inenv = False
     for line in cmdres.split('\n'):
 
-        line = line.strip()
         if not line: continue
-
-        sys.stderr.write('source: '+line+'\n')
 
         if line == magic:
             inenv = True
