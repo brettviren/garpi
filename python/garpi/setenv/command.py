@@ -4,7 +4,7 @@ Project functions to run subprocess commands and modify environment
 through sourcing shell scripts.
 '''
 
-import os
+import os,sys
 
 def cmd(cmdstr,env=None,path=None):
     '''Run a command with optional environment, maybe changing
@@ -34,8 +34,8 @@ def cmd(cmdstr,env=None,path=None):
         raise
 
     res = proc.communicate()
-    if proc.returncode < 0:
-        raise OSError,'%s failed with %d'%(" ".join(cmdstr),proc.returncode)
+    if proc.returncode != 0:
+        raise OSError,'%s failed with %d executing in %s, command returned: %s'%(" ".join(cmdstr),proc.returncode,os.getcwd(),res)
 
     if path:
         os.chdir(cwd)
@@ -70,6 +70,7 @@ fi
 ''')
     fp.close()
     os.chmod(sourcer,0700)
+    if filename[0] != '/': filename = './' + filename
     cmdstr = "%s %s %s"%(sourcer,filename,magic)
     cmdres,stderr = cmd(cmdstr,env,path)
     os.remove(sourcer)
@@ -78,8 +79,11 @@ fi
     newenv = {}
     inenv = False
     for line in cmdres.split('\n'):
+
         line = line.strip()
         if not line: continue
+
+        sys.stderr.write('source: '+line+'\n')
 
         if line == magic:
             inenv = True
