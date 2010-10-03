@@ -95,6 +95,25 @@ setenv CMTEXTRATAGS %s
             continue
         return None
 
+    def all_externals(self,projects):
+        'Return a list of all externals needed by the list of garpi.project objects'
+        pkgs = []
+        for proj in projects:
+            direct = proj.externals()
+            #print 'Project %s has %d direct'%(proj.name,len(direct)),
+            indirect = self.builder_externals(direct)
+            #print 'and %d total externals'%len(indirect)
+            for ext in indirect:
+                #print proj.name,ext,
+                #if ext in direct: print '(direct)'
+                #else: print '(indirect)'
+                if ext not in pkgs:
+                    pkgs.append(ext)
+                    pass
+                continue
+            continue
+        return pkgs
+
     def builder_externals(self,pkgs,exclusions=None):
         '''Take an ordered list of LCG_Interface packages, return an
         ordered list of LCG_Interface packages.  If an input package

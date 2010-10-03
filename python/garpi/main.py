@@ -212,22 +212,15 @@ setenv CMTCONFIG %s
         if self.cli.opts.externals: 
             return self.cli.opts.externals
 
-        pkgs = []
-        for proj in self.projects[1:]:
-            direct = proj.externals()
-            print 'Project %s has %d direct'%(proj.name,len(direct)),
-            indirect = self.lcgcmt.builder_externals(direct)
-            print 'and %d total externals'%len(indirect)
-            for ext in indirect:
-                print proj.name,ext,
-                if ext in direct: print '(direct)'
-                else: print '(indirect)'
-                if ext not in pkgs:
-                    pkgs.append(ext)
-                    pass
-                continue
-            continue
-        return pkgs
+        return self.lcgcmt.all_externals(self.projects[1:])
+
+    def do_pack(self, args):
+        import binary
+        packer = binary.Packer(args)
+        tar = packer()
+        return
+
+    pass
 
 
 if '__main__' == __name__:
