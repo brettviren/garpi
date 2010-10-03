@@ -9,6 +9,18 @@ options:
   -g <url>		: set URL for GARPI
   -f			: optimized-away things are force to happen
 
+commands:
+
+ everything		: turn a green field into a fully installed area
+			  equivalent to calling these in turn: 
+    initialize		: prepare the area
+    prereq		: build CMT and maybe git
+    get_projects	: get code for projects
+    cmtconfig		: set default CMTCONFIG
+    externals		: download and build externals
+    projects		: build projects
+
+
 EOF
     exit 0
 }
