@@ -35,7 +35,7 @@ class CommandLineInterface:
         import logging
 
         parser = OptionParser(usage = self.process_args.__doc__)
-        parser.add_option('-c','--config-file',type='string',
+        parser.add_option('-c','--config-file',type='string',default="",
                           help='Configuration file holding defaults')
         parser.add_option('-D','--dump-config',default=None,type='string',
                           help='Dump formatted configuration to given file, "-" for stdout.')
@@ -45,23 +45,28 @@ class CommandLineInterface:
                           help='Verbosity of logging');
         parser.add_option('-l','--log-file',default='garpi.log',type='string',
                           help='Specify a log file')
-        parser.add_option('-b','--projects-directory',default=os.getcwd(),type='string',
+        parser.add_option('-b','--projects-directory',default="",type='string',
                           help='Directory holding the CMT projects')
-        parser.add_option('-e','--externals-directory',default=os.getcwd(),type='string',
+        parser.add_option('-e','--externals-directory',default="",type='string',
                           help='Directory holding the external packages')
         parser.add_option('-E','--externals',default=None,type='string',
                           help='Explicitly list externals (single name or Python list)')
 
         (options,args) = parser.parse_args(args=argv)
+
+        assert options.config_file, 'Must be given a configuration file.'
+
         self.parser = parser
         self.opts = options
         self.args = args
 
+        # save this point of reference
+        self.cwd = os.getcwd()
+
         # fix up options
-        if self.opts.base_directory[0] != '/': 
-            self.opts.base_directory = os.getcwd() + '/' + self.opts.base_directory
         if self.opts.log_file[0] != '/':
-            self.opts.log_file = self.opts.base_directory + '/' + self.opts.log_file
+            self.opts.log_file = os.getcwd() + '/' + self.opts.log_file
+
         if self.opts.externals:
             if self.opts.externals[0] == "[":
                 self.opts.externals = eval(self.opts.externals)
@@ -72,11 +77,7 @@ class CommandLineInterface:
         # Get defaults 
         from ConfigParser import SafeConfigParser
         self.file = SafeConfigParser()
-        if options.config_file:
-            self.file.read(options.config_file)
-        else:
-            self.load_default_config()
-
+        self.file.read(options.config_file)
 
         from util import log_maker
         log_maker.set_file(options.log_file)
@@ -98,5 +99,23 @@ class CommandLineInterface:
             return
         self.file.read(default)
         return
+
+    def cfg(self,name,default=None,section=None):
+        '''Return value of named config.  Will return command line
+        option, if defined, otherwise will return value from
+        configuration file if section is defined and if it exists.'''
+        try:
+            value = self.opts.__dict__[name]
+        except KeyError:
+            value = None
+        if value: return eval(value)
+        from ConfigParser import NoOptionError
+        if not section: return default
+        try:
+            value = self.file.get(section,name)
+        except NoOptionError:
+            return default
+        if not value: return default
+        return eval(value)
 
 cli = CommandLineInterface(sys.argv)

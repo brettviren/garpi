@@ -15,7 +15,9 @@ class Garpi:
 
         self.projects = []
 
-        projects = eval(cli.file.get('projects','projects'))
+        projects = cli.cfg('projects',section='main')
+        if 'lcgcmt' not in projects:
+            raise ValueError, 'lcgcmt is a required project'
         for pname in projects:
             if pname == 'lcgcmt':
                 from garpi.lcgcmt import Lcgcmt
@@ -219,6 +221,28 @@ setenv CMTCONFIG %s
         packer = binary.Packer(args)
         tar = packer()
         return
+
+    def do_emit_setenv_config(self, filename=None):
+        'Emit configuration suitable for use by garpi-setenv'
+        import fs, os
+
+        if not filename: filename='/dev/stdout'
+        fp = open(filename,'w')
+
+        fp.write('[defaults]\n')
+        fp.write('base_release = %s\n'%fs.projects())
+
+        projects = list(self.projects)
+        projects.reverse()
+        for p in projects:
+            rp = p.rel_pkg()
+            if rp:
+                fp.write('release_package = %s\n'%os.path.join(p.name,rp))
+                break
+            continue
+        fp.close()
+        return
+
 
     pass
 

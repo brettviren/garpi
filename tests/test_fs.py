@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-def test_projects():
+def test_directories():
     from garpi import fs
-    print fs.projects()
+    print 'projects',fs.projects()
+    print 'external',fs.external()
 
 if '__main__' == __name__:
-    test_projects()
+    test_directories()

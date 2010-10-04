@@ -32,6 +32,30 @@ def check_debian():
         return False
     return True
 
+def check_external():
+    'If non-standard external location, make sure it is symlinked'
+    from config import cli
+    import fs
+    path = fs.external()
+    extdir = os.path.basename(path)
+    base = os.path.dirname(path)
+    target = os.path.join(cli.cwd,'external')
+
+    # standard name, standard location
+    if extdir == 'external' and os.path.samefile(cli.cwd,base):
+        return True
+    
+    if os.path.exists(target):
+        if os.path.islink(target):
+            os.remove(target)
+        else:
+            log.error('External directory is "%s" but need to symlink it from "%s" which is in the way'%(path,target))
+            return False
+        
+    log.info('Making symlink from "%s" to "%s"'%(path,target))
+    os.symlink(path,target)
+    return True
+
 
 def check():
     '''Perform sanity checks relevant to the installation host'''
@@ -42,5 +66,5 @@ def check():
         assert check_debian(), 'Debian specific checks failed.'
     if os.path.exists('/etc/redhat-release'):
         assert check_redhat(), 'Red Hat specific checks failed.'
-
+    assert check_external(), 'Sanity check on external directory failed.'
     return True

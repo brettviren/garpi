@@ -16,20 +16,16 @@ from ConfigParser import NoOptionError
 def external():
     'Return the absolute path to the directory holding the external packages'
     from config import cli
-    if cli.opts.externals_directory: return cli.opts.externals_directory
-    try:
-        return eval(cli.file.get('directories','externals'))
-    except NoOptionError: pass
-    return os.path.join(os.getcwd(), 'external')
+    path = cli.cfg('external_directory',default='external',section='main')
+    if path[0] == '/': return path
+    return os.path.join(cli.cwd, path)
 
 def projects():
     'Return the absolute path to the directory holding the projects'
     from config import cli
-    if cli.opts.externals_directory: return cli.opts.externals_directory
-    try:
-        return eval(cli.file.get('directories','externals'))
-    except NoOptionError: pass
-    return os.path.join(os.getcwd(), 'projects')
+    path = cli.cfg('projects_directory',default='projects',section='main')
+    if path[0] == '/': return path
+    return os.path.join(cli.cwd, path)
 
 def setup():
     'Return the absolute path to the directory holding the setup scripts'
