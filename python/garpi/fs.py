@@ -11,24 +11,25 @@ directories to the applicable function from the "command" module.
 '''
 
 import os
-
-def base():
-    'Return the absolute path to the base directory'
-    from config import cli
-    return cli.opts.base_directory
-    
-def name():
-    'Return the name of the release being built'
-    from config import cli
-    return cli.opts.name
+from ConfigParser import NoOptionError
 
 def external():
     'Return the absolute path to the directory holding the external packages'
-    return os.path.join(base(),'external')
+    from config import cli
+    if cli.opts.externals_directory: return cli.opts.externals_directory
+    try:
+        return eval(cli.file.get('directories','externals'))
+    except NoOptionError: pass
+    return os.path.join(os.getcwd(), 'external')
 
 def projects():
     'Return the absolute path to the directory holding the projects'
-    return os.path.join(base(), name())
+    from config import cli
+    if cli.opts.externals_directory: return cli.opts.externals_directory
+    try:
+        return eval(cli.file.get('directories','externals'))
+    except NoOptionError: pass
+    return os.path.join(os.getcwd(), 'projects')
 
 def setup():
     'Return the absolute path to the directory holding the setup scripts'

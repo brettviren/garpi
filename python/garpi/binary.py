@@ -93,11 +93,14 @@ class Packer(object):
         import os, command, fs
 
         cmtconfig = os.getenv('CMTCONFIG')
-        basedir = fs.base()
+
+        project_area = fs.projects
+        basedir = os.path.dirname(project_area)
+        snip = len(basedir)+1
 
         grist = []
         for proj in self.project_objects:
-            projdir = os.path.join(fs.projects(),proj.name)
+            projdir = os.path.join(project_area,proj.name)
 
             out = command.cmd("find . -type f -print",
                               dir=projdir, output=True)
@@ -106,7 +109,7 @@ class Packer(object):
 
                 if path[:2] == './': path = path[2:]
                 path = os.path.join(projdir,path)
-                path = path[len(basedir)+1:]
+                path = path[snip:]
 
                 # Handle InstallArea special
                 if '/InstallArea/' in path:
@@ -142,7 +145,7 @@ class Packer(object):
             continue
 
         # some extra by hand
-        projdir = fs.projects()[len(basedir)+1:]
+        projdir = fs.projects()[snip:]
         grist.append(os.path.join(projdir,'setup'))
         grist.append(os.path.join(projdir,'setup.sh'))
         grist.append(os.path.join(projdir,'setup.csh'))
@@ -163,14 +166,16 @@ class Packer(object):
             pass
 
         import os,fs,cmt
-        base = fs.base()
+        project_area = fs.projects
+        basedir = os.path.dirname(project_area)
+        snip = len(basedir)+1
 
         ret = []
-        intdir = os.path.join(fs.projects(),'lcgcmt/LCG_Interfaces')
+        intdir = os.path.join(project_area,'lcgcmt/LCG_Interfaces')
         for pkg in externals:
             intpkg = os.path.join(intdir,pkg,'cmt')
             home = cmt.macro(pkg + '_home', dir=os.path.join(intpkg))
-            home = home[len(base)+1:] # make relative to base
+            home = home[snip:] # make relative to base
             ret.append(home)
             continue
         return ret

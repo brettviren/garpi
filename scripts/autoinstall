@@ -7,6 +7,7 @@ usage: autoinstall [options] command [args]
 options: 
   -c <url>		: set URL for the config file
   -g <url>		: set URL for GARPI
+  -n <name>		: set name for projects directory
   -f			: optimized-away things are force to happen
 
 commands:
@@ -30,9 +31,11 @@ garpiurl_http="http://www.phy.bnl.gov/~bviren/garpi/releases/garpi-latest.tar.gz
 garpiurl_git="ssh://gitosis@gateway.phy.bnl.gov/garpi"
 garpiurl="$garpiurl_http"
 force=""
-set -- `getopt c:g:fG $*`
+projects_name=""
+set -- `getopt n:c:g:fG $*`
 for arg in $* ; do
     case $arg in
+	-n) projects_name=$2; shift 2;;
 	-c) cfgurl=$2; shift 2;;
 	-g) garpiurl=$2; shift 2;;
 	-G) garpiurl=$garpiurl_git; shift ;;
@@ -182,12 +185,15 @@ initialize () {
     garpidir=$(get_unpack_garpi)
     garpidir=$(make_absolute $garpidir)
     #info "Got garpidir \"$garpidir\""
+    if [ -n "$projects_name" ] ; then
+	name="-n projects_name"
+    fi
     cat <<EOF>garpi-setup.sh
 garpi () {
   export GARPIROOT=$garpidir
   export GARPICONFIG=$cfg
   export PYTHONPATH=\$GARPIROOT/python\${PYTHONPATH:+:\$PYTHONPATH}
-  \$GARPIROOT/scripts/garpi -c $cfg \$*
+  \$GARPIROOT/scripts/garpi $name -c $cfg \$*
 }
 EOF
 }

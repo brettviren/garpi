@@ -45,10 +45,10 @@ class CommandLineInterface:
                           help='Verbosity of logging');
         parser.add_option('-l','--log-file',default='garpi.log',type='string',
                           help='Specify a log file')
-        parser.add_option('-n','--name',default='projects',type='string',
-                          help='Name used to identify this build, will name the sub directory of --base-directory')
-        parser.add_option('-b','--base-directory',default=os.getcwd(),type='string',
-                          help='Base directory holding project and external areas')
+        parser.add_option('-b','--projects-directory',default=os.getcwd(),type='string',
+                          help='Directory holding the CMT projects')
+        parser.add_option('-e','--externals-directory',default=os.getcwd(),type='string',
+                          help='Directory holding the external packages')
         parser.add_option('-E','--externals',default=None,type='string',
                           help='Explicitly list externals (single name or Python list)')
 

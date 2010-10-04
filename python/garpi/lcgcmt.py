@@ -60,6 +60,9 @@ class Lcgcmt(Project):
         tags = ','.join(tags)
         #print 'setting extra tags =',tags
 
+        values = (os.path.dirname(fs.projects()),
+                  os.path.basename(fs.projects()),tags)
+
         # Bourne Shell
         sh = open(os.path.join(base,'10_lcgcmt.sh'),'w')
         sh.write('''#!/bin/sh
@@ -69,7 +72,7 @@ CMTPROJECTPATH=$SITEROOT/%s
 export CMTPROJECTPATH
 CMTEXTRATAGS=%s
 export CMTEXTRATAGS
-'''%(fs.base(),fs.name(),tags))
+'''%values)
         sh.close()
 
         # C(rappy) Shell
@@ -78,7 +81,7 @@ export CMTEXTRATAGS
 setenv SITEROOT %s
 setenv CMTPROJECTPATH %s
 setenv CMTEXTRATAGS %s
-        '''%(fs.base(),fs.name(),tags))
+        '''%values)
         csh.close()
         return
 
