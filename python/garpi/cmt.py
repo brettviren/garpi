@@ -158,7 +158,8 @@ def setup():
     def do_link(ext):
         if os.path.exists('00_cmt'+ext): 
             os.remove('00_cmt'+ext)
-        os.symlink(setup+ext,'00_cmt'+ext)
+        import shutil
+        shutil.copy(setup+ext,'00_cmt'+ext)
     for ext in ['.sh','.csh']:
         do_link(ext)
     return fs.setup() + '/00_cmt.sh'

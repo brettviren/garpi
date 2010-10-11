@@ -222,6 +222,12 @@ setenv CMTCONFIG %s
         tar = packer()
         return
 
+    def do_unpack(self, args):
+        import binary
+        unpacker = binary.Unpacker(args)
+        unpacker()
+        return
+
     def do_emit_setenv_config(self, filename=None):
         'Emit configuration suitable for use by garpi-setenv'
         import fs, os

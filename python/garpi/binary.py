@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-'''
-pack [options] tarfilename - pack an installation into a tar file
-'''
 
 class Packer(object):
+    '''
+    pack [options] tarfilename - pack an installation into a tar file
+    '''
     def __init__(self,args):
         from optparse import OptionParser
-        parser = OptionParser(usage=__doc__,add_help_option=False)
+        parser = OptionParser(usage=Packer.__doc__,add_help_option=False)
 
         parser.add_option('-r','--include-repository',default=False,action='store_true',
                           help='Include version control directories.')
@@ -94,7 +94,7 @@ class Packer(object):
 
         cmtconfig = os.getenv('CMTCONFIG')
 
-        project_area = fs.projects
+        project_area = fs.projects()
         basedir = os.path.dirname(project_area)
         snip = len(basedir)+1
 
@@ -166,15 +166,17 @@ class Packer(object):
             pass
 
         import os,fs,cmt
-        project_area = fs.projects
+        project_area = fs.projects()
         basedir = os.path.dirname(project_area)
         snip = len(basedir)+1
+        #print snip, basedir, project_area
 
         ret = []
         intdir = os.path.join(project_area,'lcgcmt/LCG_Interfaces')
         for pkg in externals:
             intpkg = os.path.join(intdir,pkg,'cmt')
-            home = cmt.macro(pkg + '_home', dir=os.path.join(intpkg))
+            home = cmt.macro(pkg + '_home', dir=intpkg)
+            #print intpkg,home
             home = home[snip:] # make relative to base
             ret.append(home)
             continue
@@ -208,3 +210,46 @@ class Packer(object):
         return
 
             
+class Unpacker(object):
+    '''
+    unpack [options] tarfilename - unpack an installation from its packed tar file
+    '''
+
+    def __init__(self,args):
+        import os
+        from optparse import OptionParser
+        parser = OptionParser(usage=Unpacker.__doc__,add_help_option=False)
+
+        parser.add_option('-d','--directory',default='.',type='string',
+                          help='Change to given directory before unpacking.')
+
+        opts,args = parser.parse_args(args=args)
+        self.opts = opts
+        if not args:
+            raise ValueError, 'No tar file name given.'
+        self.tarfilename = args[0]
+
+        if self.tarfilename[0] != '/':
+            self.tarfilename = os.path.join(os.getcwd(),self.tarfilename)
+        if opts.directory[0] != '/':
+            opts.directory = os.path.join(os.getcwd(),opts.directory)
+
+
+        return
+
+    def _unpack_tar(self):
+        tarcmd = "tar -x"
+        if 'gz' in self.tarfilename: tarcmd += "z"
+        tarcmd += "f %s"%self.tarfilename
+        from command import cmd
+        cmd(tarcmd,dir=self.opts.directory)
+        return
+
+    def _fix_cmt(self):
+        return
+
+    def __call__(self):
+        self._unpack_tar()
+        self._fix_cmt()
+        
+        

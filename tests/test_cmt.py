@@ -46,6 +46,11 @@ def test_uses():
     for use in uses:
         print 'Use:',use,'use.project=',use.project
 
+def test_macro():
+    pkgdir = 'projects/lcgcmt/LCG_Interfaces/Python/cmt'
+    for name in ['LCG_system','Python_home']:
+        print name,cmt.macro(name,dir=pkgdir)
+    
 if '__main__' == __name__:
     #test_download()
     #test_unpack()
@@ -53,4 +58,6 @@ if '__main__' == __name__:
     #test_setup()
     #test_help()
     #test_show()
-    test_uses()
+    #test_uses()
+    test_macro()
+    
