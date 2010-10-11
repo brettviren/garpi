@@ -238,13 +238,19 @@ externals () {
     logcmd garpi externals
 }
 
+projects () {
+    source garpi-setup.sh
+    source cmtconfig-setup.sh
+    info "Installing externals"
+    logcmd garpi projects
+}
 everything () {
     initialize
     prereq
     get_projects
     cmtconfig
     externals
-    #projects
+    projects
 }
 
 what=$1 ; shift

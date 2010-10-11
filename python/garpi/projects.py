@@ -122,7 +122,7 @@ class Project:
         command.cmd(cmdstr,env=self.env(),dir=relpkgcmt)
 
     def config(self):
-        '''Configure all packages reached by the project's release package'''
+        "Configure all packages reached by the project's release package"
         self.cmd_inrel('cmt br cmt config')
         return
 

@@ -216,6 +216,25 @@ setenv CMTCONFIG %s
 
         return self.lcgcmt.all_externals(self.projects[1:])
 
+    def do_projects(self,projects=None):
+        'Build projects in order listed in configuration file'
+        projlist = self.projects
+        if projects:
+            names = map(lambda x: x.name,self.projects)
+            projlist = []
+            for name in projects:
+                ind = names.index(name)
+                projlist.append(self.projects[ind])
+                continue
+            pass
+        for proj in projlist:
+            print 'Building %s'%proj.name
+            proj.config()
+            proj.make()
+            continue
+        return
+            
+
     def do_pack(self, args):
         import binary
         packer = binary.Packer(args)
