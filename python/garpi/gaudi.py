@@ -21,14 +21,14 @@ class Gaudi(Project):
         from svn import svncmd
         scheme = self.url().split('+')
 
+        if 'tag:' in self.tag():
+            url = '%s/tags/GAUDI/%s'%(scheme[1],self.tag().split(':')[1])
+        if 'branch:' in self.tag():
+            url = '%s/branches/GAUDI/%s'%(scheme[1],self.tag().split(':')[1])
         if self.tag() == 'trunk':
             url = '%s/trunk'%scheme[1]
-        else:
-            url = '%s/tags/GAUDI/GAUDI_%s'%(scheme[1],self.tag())
         svncmd('co %s %s/gaudi'%(url,fs.projects()))
-        return
-
-            
+        return            
 
     def _download_git(self):
         url = self.url()

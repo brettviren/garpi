@@ -122,6 +122,7 @@ def get_http_ftp(what,url,target,overwrite):
 
     return target
 
+
 def uriparse(uri):
     '''
     Split the URI scheme://hostname/path into [scheme,hostname,path]
@@ -131,6 +132,8 @@ def uriparse(uri):
     slash = uri.find('/',slashslash)
     #print colon, slashslash, slash
     return [uri[:colon], uri[slashslash:slash], uri[slash:]]
+
+
 
 def get(url,target,overwrite=False,tag=None):
     '''
@@ -156,7 +159,7 @@ def get(url,target,overwrite=False,tag=None):
     svn+TRANSPORT: - perform "svn co" using the remaining URL with
     'svn+' removed.  If overwritting, an "svn update" is done.
 
-    cvs+:TRANSPORT: - perform "cvsv co" using the remaining URL with
+    cvs+:TRANSPORT: - perform "cvs co" using the remaining URL with
     'cvs+' removed.  If overwritting, an "cvs update" is done.
     '''
 
@@ -178,9 +181,10 @@ def get(url,target,overwrite=False,tag=None):
     if scheme[0] == 'cvs':
         # get_cvs(url,module,tag,target,overwrite):
         #print 'CVS: "%s", "%s", "%s"'%(urlp[0],urlp[1],urlp[2])
-        url = ':%s:%s%s'%(scheme[1],urlp[1],'/'.join(urlp[2].split('/')[:-1]))
+        url = ':%s:%s:%s'%(scheme[1],urlp[1],'/'.join(urlp[2].split('/')[:-1]))
         module = urlp[2].split('/')[-1]
         #print 'url=%s, module=%s'%(url,module)
+        print 'Note: getting from CVS, if this appears to hang, it is waiting for a password'
         return get_cvs(url,module,tag,target,overwrite)
 
     msg = 'Unhandled URL: "%s"'%url
