@@ -1,23 +1,27 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
 lang="en" xml:lang="en">
 <head>
+
 <title>Automatic Installation</title>
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2010-10-02 15:23:53 EDT"/>
+<meta name="generated" content="2010-10-19 12:46:56 EDT"/>
 <meta name="author" content="Brett Viren"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
   html { font-family: Times, serif; font-size: 12pt; }
   .title  { text-align: center; }
   .todo   { color: red; }
   .done   { color: green; }
-  .tag    { background-color:lightblue; font-weight:normal }
+  .tag    { background-color: #add8e6; font-weight:normal }
   .target { }
-  .timestamp { color: grey }
-  .timestamp-kwd { color: CadetBlue }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
   p.verse { margin-left: 3% }
   pre {
 	border: 1pt solid #AEBDCC;
@@ -61,9 +65,11 @@ lang="en" xml:lang="en">
    if(elem.cacheClassTarget)
      target.className = elem.cacheClassTarget;
  }
-/*]]>*/-->
+/*]]>*///-->
 </script>
-</head><body>
+</head>
+<body>
+<div id="content">
 <h1 class="title">Automatic Installation</h1>
 
 <p>This documents GARPI's high-level installation script, <code>autoinstall</code>.
@@ -103,8 +109,8 @@ GARPI configuration file.
 </div>
 
 <div id="outline-container-1" class="outline-2">
-<h2 id="sec-1">1 Basic steps </h2>
-<div id="text-1">
+<h2 id="sec-1"><span class="section-number-2">1</span> Basic steps </h2>
+<div class="outline-text-2" id="text-1">
 
 
 <p>
@@ -115,51 +121,70 @@ It takes three steps to take a green field and build everything.
 Go to an area to hold the installation
 
 
+</li>
+</ol>
 
 
-<pre class="src src-shell">
-cd /path/to/install
+<pre class="src src-shell">cd /path/to/install
 </pre>
 
 
 
 
-</li>
+<ol>
 <li>
 Get the script from: <a href="http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text">http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text</a>
-
-
-
-
-<pre class="src src-shell">
-wget http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text
-</pre>
-
-
-
-
-</li>
-<li>
-Let it do its thing:
-
-
-
-
-<pre class="src src-shell">
-./autoinstall -c garpi.cfg everything
-</pre>
-
-
 
 
 </li>
 </ol>
 
+
+<pre class="src src-shell">wget -O autoinstall http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text
+chmod +x autoinstall
+</pre>
+
+
+
+
+<ol>
+<li>
+Write or download a <code>project.cfg</code> file from somewhere.  If you need
+to write your own you can start with the one that builds GAUDI and
+friends:
+
+
+</li>
+</ol>
+
+
+<pre class="src src-shell">wget -O gaudi.cfg http://www.phy.bnl.gov/trac/garpi/browser/cfg/gaudi.cfg?format=text
+</pre>
+
+
+
+
+<ol>
+<li>
+Let it do its thing:
+
+
+</li>
+</ol>
+
+
+<pre class="src src-shell">./autoinstall -c garpi.cfg everything
+</pre>
+
+
+
+
+
 </div>
 
 <div id="outline-container-1.1" class="outline-3">
-<h3 id="sec-1.1">1.1 Logging </h3>
-<div id="text-1.1">
+<h3 id="sec-1.1"><span class="section-number-3">1.1</span> Logging </h3>
+<div class="outline-text-3" id="text-1.1">
 
 
 <p>
@@ -173,8 +198,8 @@ the underlying <code>garpi</code> script is run it appends to a <code>garpi.log<
 </div>
 
 <div id="outline-container-1.2" class="outline-3">
-<h3 id="sec-1.2">1.2 Resulting directories </h3>
-<div id="text-1.2">
+<h3 id="sec-1.2"><span class="section-number-3">1.2</span> Resulting directories </h3>
+<div class="outline-text-3" id="text-1.2">
 
 
 <p>
@@ -184,8 +209,8 @@ After a successful install you will find the following directories:
 </div>
 
 <div id="outline-container-1.2.1" class="outline-4">
-<h4 id="sec-1.2.1">1.2.1 <code>external/</code> </h4>
-<div id="text-1.2.1">
+<h4 id="sec-1.2.1"><span class="section-number-4">1.2.1</span> <code>external/</code> </h4>
+<div class="outline-text-4" id="text-1.2.1">
 
 
 <p>
@@ -200,8 +225,8 @@ successful installation.
 </div>
 
 <div id="outline-container-1.2.2" class="outline-4">
-<h4 id="sec-1.2.2">1.2.2 <code>projects/</code> </h4>
-<div id="text-1.2.2">
+<h4 id="sec-1.2.2"><span class="section-number-4">1.2.2</span> <code>projects/</code> </h4>
+<div class="outline-text-4" id="text-1.2.2">
 
 
 <p>
@@ -213,8 +238,8 @@ This holds all CMT projects listed in the configuration file plus a
 </div>
 
 <div id="outline-container-1.2.3" class="outline-4">
-<h4 id="sec-1.2.3">1.2.3 <code>garpi/</code> </h4>
-<div id="text-1.2.3">
+<h4 id="sec-1.2.3"><span class="section-number-4">1.2.3</span> <code>garpi/</code> </h4>
+<div class="outline-text-4" id="text-1.2.3">
 
 
 <p>
@@ -231,8 +256,8 @@ performed.
 </div>
 
 <div id="outline-container-2" class="outline-2">
-<h2 id="sec-2">2 Break it down </h2>
-<div id="text-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Break it down </h2>
+<div class="outline-text-2" id="text-2">
 
 
 <p>
@@ -243,8 +268,8 @@ road to <code>everything</code>.  These are described here.
 </div>
 
 <div id="outline-container-2.1" class="outline-3">
-<h3 id="sec-2.1">2.1 Options </h3>
-<div id="text-2.1">
+<h3 id="sec-2.1"><span class="section-number-3">2.1</span> Options </h3>
+<div class="outline-text-3" id="text-2.1">
 
 
 <p>
@@ -253,8 +278,7 @@ To see available options run the <code>autoinstall</code> script with no argumen
 
 
 
-<pre class="src src-shell">
-./autoinstall
+<pre class="src src-shell">./autoinstall
 </pre>
 
 
@@ -268,8 +292,8 @@ Not all options are required for all steps.
 </div>
 
 <div id="outline-container-2.2" class="outline-3">
-<h3 id="sec-2.2">2.2 Initialization </h3>
-<div id="text-2.2">
+<h3 id="sec-2.2"><span class="section-number-3">2.2</span> Initialization </h3>
+<div class="outline-text-3" id="text-2.2">
 
 
 <p>
@@ -278,8 +302,7 @@ The initialization step can be run explicitly by doing:
 
 
 
-<pre class="src src-shell">
-./autoinstall -c garpi.cfg initialize
+<pre class="src src-shell">./autoinstall -c garpi.cfg initialize
 </pre>
 
 
@@ -315,8 +338,8 @@ configuration file.
 </div>
 
 <div id="outline-container-2.3" class="outline-3">
-<h3 id="sec-2.3">2.3 Prerequisites </h3>
-<div id="text-2.3">
+<h3 id="sec-2.3"><span class="section-number-3">2.3</span> Prerequisites </h3>
+<div class="outline-text-3" id="text-2.3">
 
 
 <p>
@@ -326,8 +349,7 @@ installation.
 
 
 
-<pre class="src src-shell">
-./autoinstall prereq
+<pre class="src src-shell">./autoinstall prereq
 </pre>
 
 
@@ -363,8 +385,8 @@ in the user's <code>PATH</code>.
 </div>
 
 <div id="outline-container-2.4" class="outline-3">
-<h3 id="sec-2.4">2.4 Get project code </h3>
-<div id="text-2.4">
+<h3 id="sec-2.4"><span class="section-number-3">2.4</span> Get project code </h3>
+<div class="outline-text-3" id="text-2.4">
 
 
 <p>
@@ -375,8 +397,7 @@ later to set one's environment.
 
 
 
-<pre class="src src-shell">
-./autoinstall get_projects
+<pre class="src src-shell">./autoinstall get_projects
 </pre>
 
 
@@ -391,8 +412,8 @@ step is reused.
 </div>
 
 <div id="outline-container-2.5" class="outline-3">
-<h3 id="sec-2.5">2.5 Set <code>CMTCONFIG</code> </h3>
-<div id="text-2.5">
+<h3 id="sec-2.5"><span class="section-number-3">2.5</span> Set <code>CMTCONFIG</code> </h3>
+<div class="outline-text-3" id="text-2.5">
 
 
 <p>
@@ -403,8 +424,7 @@ write the results to a <code>cmtconfig-setup.sh</code>.
 
 
 
-<pre class="src src-shell">
-./autoinstall cmtconfig
+<pre class="src src-shell">./autoinstall cmtconfig
 </pre>
 
 
@@ -417,8 +437,7 @@ You will need to introduce it to LCGCMT by adding lines in
 
 
 
-<pre class="src src-shell">
-projects/lcgcmt/LCG_Settings/cmt/requirements
+<pre class="src src-shell">projects/lcgcmt/LCG_Settings/cmt/requirements
 </pre>
 
 
@@ -433,8 +452,8 @@ This will define the default CMTCONFIG for users of this installation.
 </div>
 
 <div id="outline-container-2.6" class="outline-3">
-<h3 id="sec-2.6">2.6 Download and build the external packages </h3>
-<div id="text-2.6">
+<h3 id="sec-2.6"><span class="section-number-3">2.6</span> Download and build the external packages </h3>
+<div class="outline-text-3" id="text-2.6">
 
 
 <p>
@@ -445,8 +464,7 @@ to determine what external packages are needed, download and them.
 
 
 
-<pre class="src src-shell">
-./autoinstall externals
+<pre class="src src-shell">./autoinstall externals
 </pre>
 
 
@@ -463,8 +481,8 @@ LCGCMT documentation for details.
 </div>
 
 <div id="outline-container-2.7" class="outline-3">
-<h3 id="sec-2.7">2.7 Build the projects </h3>
-<div id="text-2.7">
+<h3 id="sec-2.7"><span class="section-number-3">2.7</span> Build the projects </h3>
+<div class="outline-text-3" id="text-2.7">
 
 
 <p>
@@ -474,10 +492,13 @@ long time as well.
 </div>
 </div>
 </div>
-<div id="postamble"><p class="author"> Author: Brett Viren
-<a href="mailto:bviren@hal.local">&lt;bviren@hal.local&gt;</a>
+<div id="postamble">
+<p class="author"> Author: Brett Viren
+<a href="mailto:bv@bnl.gov">&lt;bv@bnl.gov&gt;</a>
 </p>
-<p class="date"> Date: 2010-10-02 15:23:53 EDT</p>
-<p>HTML generated by org-mode 6.21b in emacs 23</p>
-</div></body>
+<p class="date"> Date: 2010-10-19 12:46:56 EDT</p>
+<p class="creator">HTML generated by org-mode 6.28trans in emacs 24</p>
+</div>
+</div>
+</body>
 </html>

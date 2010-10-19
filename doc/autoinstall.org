@@ -18,7 +18,16 @@ cd /path/to/install
  0. Get the script from: http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text
 
 #+begin_src shell
-wget http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text
+wget -O autoinstall http://www.phy.bnl.gov/trac/garpi/browser/scripts/autoinstall?format=text
+chmod +x autoinstall
+#+end_src
+
+ 0. Write or download a =project.cfg= file from somewhere.  If you need
+    to write your own you can start with the one that builds GAUDI and
+    friends:
+
+#+begin_src shell
+wget -O gaudi.cfg http://www.phy.bnl.gov/trac/garpi/browser/cfg/gaudi.cfg?format=text
 #+end_src
 
  0. Let it do its thing:
