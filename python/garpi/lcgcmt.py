@@ -152,7 +152,14 @@ setenv CMTEXTRATAGS %s
 
         return ret
 
-    def build_package(self,pkg):
+    def get_package_source(self,pkg):
+        '''
+        Get the pkg source
+        '''
+        self.build_package(pkg,['get'])
+        return
+
+    def build_package(self,pkg,cmds = None):
         '''
     for cmd in get config make install
     do
@@ -164,29 +171,27 @@ setenv CMTEXTRATAGS %s
         import fs
         fs.assure(os.path.join(fs.external(),'tarFiles'))
         fs.assure(os.path.join(fs.external(),'build/LCG'))
-
+        
         bdir = self.builder_directory(pkg)
         from exception import InconsistentState
         if bdir is None: 
             raise InconsistentState('No builder directory for "%s"'%pkg)
         
-        print 'Building %s in %s'%(pkg,bdir)
+        if not cmds:
+            print 'Building %s in %s'%(pkg,bdir)
 
         pkg = os.path.basename(bdir)
         cmtdir = os.path.join(bdir,'cmt')
 
         envdir = os.path.join('LCG_Builders',pkg)
         env = self.env(envdir)
-        #print 'G4 env from %s'%envdir
-        #for k,v in env.items():
-        #    if k[:2] == 'G4': print '%s=%s'%(k,v)
-        #print 'SITEROOT=%s'%env['SITEROOT']
 
         import fs
         fs.goto(cmtdir)
         
         import cmt
-        for what in ['get','config','make','install']:
+        if not cmds: cmds = ['get','config','make','install']
+        for what in cmds:
             print '\t%s'%what
             cmt.cmt('pkg_%s'%what,extra_env=env,dir=cmtdir)
 

@@ -11,6 +11,8 @@ class Gaudi(Project):
 
     def download(self):
         url = self.url()
+        print 'gaudi url: "%s"'%url
+        print 'gaudi tag: "%s"'%self.tag()
         # Gaudi has a peculiar repository
         if url[:3] == 'git': return self._download_git()
         if url[:3] == 'svn' and 'cern.ch' in url: self._download_cern_svn()
@@ -21,12 +23,12 @@ class Gaudi(Project):
         from svn import svncmd
         scheme = self.url().split('+')
 
-        if 'tag:' in self.tag():
-            url = '%s/tags/GAUDI/%s'%(scheme[1],self.tag().split(':')[1])
-        if 'branch:' in self.tag():
-            url = '%s/branches/GAUDI/%s'%(scheme[1],self.tag().split(':')[1])
         if self.tag() == 'trunk':
             url = '%s/trunk'%scheme[1]
+        else:
+            url = '%s/tags/GAUDI/%s'%(scheme[1],self.tag())
+        # installing from a branch not supported/recommended.
+
         svncmd('co %s %s/gaudi'%(url,fs.projects()))
         return            
 

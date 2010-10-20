@@ -199,6 +199,15 @@ setenv CMTCONFIG %s
         print ' '.join(pkglist)
         return
 
+    def do_get_externals(self,pkglist=None):
+        'Get the source files for the given list of externals, or all required ones'
+        if not pkglist:
+            pkglist = self.externals()
+
+        for pkg in pkglist:
+            self.lcgcmt.get_package_source(pkg)
+        
+
     def do_externals(self,pkglist=None):
         'Build given list of externals, or all required ones'
         if not pkglist:
