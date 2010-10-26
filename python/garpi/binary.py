@@ -226,8 +226,8 @@ class Unpacker(object):
             
     
     def __call__(self):
-        #self._unpack_tar()
-        #self._fix_cmt()
-        #self._fix_setup()
+        self._unpack_tar()
+        self._fix_cmt()
+        self._fix_setup()
         self._fix_projects()
         
