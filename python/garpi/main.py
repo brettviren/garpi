@@ -32,6 +32,11 @@ class Garpi:
                 self.projects.append(Project(pname))
             continue        
         
+        webcache = cli.cfg('webcache',default=None,section='main')
+        if webcache:
+            import os
+            os.environ['GARPI_WEBCACHE'] = ' '.join(webcache)
+
         return
 
     def run(self):
