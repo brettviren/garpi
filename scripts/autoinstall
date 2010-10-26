@@ -241,7 +241,7 @@ externals () {
 projects () {
     source garpi-setup.sh
     source cmtconfig-setup.sh
-    info "Installing externals"
+    info "Installing projects"
     logcmd garpi projects
 }
 everything () {
