@@ -245,14 +245,27 @@ setenv CMTCONFIG %s
             
 
     def do_pack(self, args):
+        'Pack current intall into a tar file'
+        try:
+            tarfilename = args[0]
+        except IndexError:
+            raise ValueError, 'No tar file name given.'
+        
+
         import binary
-        packer = binary.Packer(args)
+        packer = binary.Packer(tarfilename,self.projects,self.externals())
         tar = packer()
         return
 
     def do_unpack(self, args):
+        'Unpack given packed tar file'
+        try:
+            tarfilename = args[0]
+        except IndexError:
+            raise ValueError, 'No tar file name given.'
+
         import binary
-        unpacker = binary.Unpacker(args)
+        unpacker = binary.Unpacker(tarfilename,self.projects)
         unpacker()
         return
 

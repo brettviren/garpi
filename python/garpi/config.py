@@ -51,6 +51,12 @@ class CommandLineInterface:
                           help='Directory holding the external packages')
         parser.add_option('-E','--externals',default=None,type='string',
                           help='Explicitly list externals (single name or Python list)')
+        parser.add_option('-N','--no-act',default=False,action='store_true',
+                          help='No action, simulate what would be done')
+        parser.add_option('-r','--include-repository',default=False,action='store_true',
+                          help='Include version control directories if packing a binary.')
+        parser.add_option('-u','--unpack-directory',default=".",type="string",
+                          help='Specify directory to unpack binary tarfile.')
 
         (options,args) = parser.parse_args(args=argv)
 

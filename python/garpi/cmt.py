@@ -89,31 +89,21 @@ def merge_env(envs):
     return ret
 
 
-def env(pkgdir = None):
-    """Return the environment after sourceing CMT's setup.sh.  If
-    pkgdir is given additional environment from the additional package
-    level setup will be added.  This can be a single package directory
-    or a list of ones. This function will fail if called before
-    cmt.build() has been run."""
+_environ = None
+def env():
+
+    """Return the environment after sourcing CMT's setup.sh.  It
+    assumes a cmt.build() has been called.  """
+
+    global _environ
+    if _environ is not None:
+        return _environ
+
     from command import source
-
     mgrdir = os.path.join(srcdir(),'mgr')
-    #print 'cmt.evn: source %s/setup.sh'%mgrdir
-    environ = source('./setup.sh',dir=mgrdir)
-
-    if not pkgdir:
-        #print 'cmt.env: No package dir'
-        return environ
-
-    if type(pkgdir) == type(""): pkgdir = [pkgdir]
-    for pdir in pkgdir:
-        if pdir[-4:] != '/cmt':
-            pdir += '/cmt'
-        if not os.path.exists(os.path.join(pdir,'setup.sh')):
-            cmt('config',dir=pdir)
-        #print 'cmt.env: source %s/setup.sh'%pdir
-        update_env(environ,source('./setup.sh',dir=pdir))
-    return environ
+    #print 'cmt.env: source %s/setup.sh'%mgrdir
+    _environ = source('./setup.sh',dir=mgrdir)
+    return _environ
 
 
 def build():
@@ -166,18 +156,19 @@ def setup():
         
 #------ build above, usage below --------#
 
-def cmt(cmdstr='',extra_env=None,dir=None,output=False):
-    """Run 'cmt [cmdstr]'.  The environment in which the cmt
-    executable is run is initially composed of the application
-    environment.  It is then modified by sourcing CMT's setup script.
-    Finally, any extra_env that is passed in will be used to update
-    the env in which the command is run.  The dir and output options
-    are passed to command.cmd."""
-    from command import cmd,source
-    environ = env()
-    if extra_env: update_env(environ,extra_env)
+def cmt(cmdstr='', environ=None, dir=None, output=False):
+
+    """Run 'cmt [cmdstr]'.  By default the environment will be that
+    provided by cmt.env(pkgdir=dir) unless an explicity environment is
+    given via the environ arg.  The dir and output options are passed
+    to command.cmd."""
+
+    if not environ:
+        environ = env()
+
+    from command import cmd, source
     try:
-        ret = cmd('cmt '+cmdstr,env=environ,dir=dir,output=output)
+        ret = cmd('cmt '+cmdstr, env=environ, dir=dir, output=output)
     except OSError,msg:
         print msg
         print 'PATH:'
@@ -188,9 +179,12 @@ def cmt(cmdstr='',extra_env=None,dir=None,output=False):
         raise
     return ret
 
-def show(what,extra_env=None,delim = '=',dir=None):
-    'Run "cmt show what".  Return dictionary of result'
-    res = cmt('show '+what,extra_env = extra_env, dir=dir, output = True)
+def show(what, environ=None, delim = '=', dir=None):
+
+    '''Run "cmt show what".  Return dictionary of result.  The
+    argument environ and dir are passed to cmt.cmt().'''
+
+    res = cmt('show '+what, environ = environ, dir=dir, output = True)
     ret = {}
     for line in res.split('\n'):
         line = line.strip()
@@ -202,26 +196,34 @@ def show(what,extra_env=None,delim = '=',dir=None):
         continue
     return ret
 
-def macros(extra_env=None, dir=None):
-    '''Return all defined macros and their definitions.  If any
-    extra_env is given it will be added to what is needed just to
-    setup cmt.'''
-    return show('macros',extra_env=extra_env,dir=dir)
+def macros(environ=None, dir=None):
 
-def macro(what,extra_env=None, dir=None):
-    cmdstr = 'show macro_value '+what
-    return cmt(cmdstr,extra_env=extra_env,dir=dir,output=True)
+    '''Return all defined macros and their definitions.  The environ
+    and dir args are passed to cmt.cmt()'''
 
-def sets(extra_env=None, dir=None):
-    '''Return all defined sets and their definitions.  If any
-    extra_env is given it will be added to what is needed just to
-    setup cmt.'''
-    return show('sets',extra_env=extra_env,dir=dir)
+    return show('macros',environ=environ,dir=dir)
 
-def tags(extra_env=None,dir=None):
-    '''Return all defined tags and their sources.  If any extra_env is
-    given it will be added to what is needed just to setup cmt.'''
-    return show('tags',extra_env=extra_env,delim=' ',dir=dir)
+def macro(name, environ=None, dir=None):
+
+    '''Return the value for the given macro name and their definitions.
+    The environ and dir args are passed to cmt.cmt()'''
+
+    cmdstr = 'show macro_value '+name
+    return cmt(cmdstr, environ=environ, dir=dir, output=True)
+
+def sets(environ=None, dir=None):
+
+    '''Return all defined sets and their definitions.  The environ and
+    dir args are passed to cmt.cmt()'''
+
+    return show('sets', environ=environ, dir=dir)
+
+def tags(environ=None, dir=None):
+
+    '''Return all defined tags and their sources.  The environ and dir
+    args are passed to cmt.cmt()'''
+
+    return show('tags', environ=environ, delim=' ', dir=dir)
 
 def parse_project_file(file):
     fp = open(file)
@@ -254,8 +256,8 @@ class UsedPackage:
                                         self.version,self.project,self.directory,
                                         map(lambda x: x.name,self.uses))
 
-def reachable_packages(pkg,extra_env=None,dir=None):
-    lines = cmt('show packages',extra_env=extra_env,dir=dir,output=True)
+def reachable_packages(pkg, environ=None, dir=None):
+    lines = cmt('show packages', environ=environ, dir=dir, output=True)
     ret = {}
     for line in lines.split('\n'):
         line = line.strip()
@@ -271,13 +273,13 @@ def reachable_packages(pkg,extra_env=None,dir=None):
             ret[name] = path
     return ret
 
-def package_version(pkg_dir,extra_env=None):
-    out = cmt("show version",extra_env=extra_env,dir=pkg_dir+'/cmt',output=True)
+def package_version(pkg_dir, environ=None):
+    out = cmt("show version", environ=environ, dir=pkg_dir+'/cmt', output=True)
     #print 'SHOW VERSION: dir="%s" output="%s"'%(pkg_dir,out)
     return out.strip()
 
-def package_project(pkg_dir,extra_env=None):
-    out = cmt("show projects",dir=pkg_dir+'/cmt',extra_env=extra_env,output=True)
+def package_project(pkg_dir, environ=None):
+    out = cmt("show projects", dir=pkg_dir+'/cmt', environ=environ, output=True)
     for line in out.split('\n'):
         line = line.strip()
         if line[0] == '#': 
@@ -286,26 +288,12 @@ def package_project(pkg_dir,extra_env=None):
         return line.split()[0].strip()
     return None
 
-def get_package_env(pkg_dir):
-    path = os.path.join(pkg_dir,'cmt')
-    if not os.path.exists(os.path.join(path,'setup.sh')):
-        cmt("config",dir=path)
-
-    from command import source
-    #print 'cmt.get_package_env: source %s/setup.sh'%fs.projects()
-    extra_env = source('./setup.sh',env=env(),dir=fs.projects())
-    #print 'cmt.get_package_env: source %s/setup.sh'%path
-    extra_env = source('./setup.sh',env=extra_env,dir=path)
-    return extra_env
-
-def get_uses(pkg_dir):
+def get_uses(pkg_dir,environ):
     'Return the packages that the package at the given directory uses'
     
-    extra_env = get_package_env(pkg_dir)
-
     this_pkg = os.path.basename(pkg_dir)
-    this_ver = package_version(pkg_dir,extra_env)
-    this_project = package_project(pkg_dir,extra_env)
+    this_ver = package_version(pkg_dir, environ)
+    this_project = package_project(pkg_dir, environ)
     #print pkg_dir,'is in project',this_project
 
     log.debug("pkg =",this_pkg,"ver =",this_ver,"project =",this_project)
@@ -314,11 +302,11 @@ def get_uses(pkg_dir):
     pack2proj = {this_pkg:this_project}
 
     #...debugging...
-    #for kv in extra_env.iteritems(): print '"%s" --> "%s"'%kv
-    #print 'CMTPATH="%s"'%extra_env['CMTPATH']
+    #for kv in environ.iteritems(): print '"%s" --> "%s"'%kv
+    #print 'CMTPATH="%s"'%environ['CMTPATH']
     #print 'pkg_dir="%s", projects="%s"'%(pkg_dir,fs.projects())
 
-    res = cmt("show uses",extra_env,pkg_dir+'/cmt',True)
+    res = cmt("show uses",environ,pkg_dir+'/cmt',True)
     #print 'SHOW USES: "%s"'%res
 
     for line in res.split('\n'):
@@ -389,7 +377,7 @@ class Project:
         self.deps = deps
         if self.deps is None: self.deps = list()
         self.current = current
-        self.used_packages = get_uses("%s/%s"%(path,self.file['container']))
+        #self.used_packages = get_uses("%s/%s"%(path,self.file['container']))
         return
 
 def get_projects(path):
