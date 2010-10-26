@@ -202,6 +202,9 @@ class Unpacker(object):
         from command import cmd
         newdir = os.path.join(self.dstdir,'external/CMT',cmt.ver(),'mgr')
         cmd('./INSTALL',env=None,dir=newdir)
+        import shutil
+        shutil.copy(os.path.join(newdir,'setup.sh'), os.path.join(self.dstdir,'projects/setup/00_cmt.sh'))
+        shutil.copy(os.path.join(newdir,'setup.csh'), os.path.join(self.dstdir,'projects/setup/00_cmt.csh'))
         return
 
     def _fix_setup(self):
@@ -210,6 +213,27 @@ class Unpacker(object):
         base = os.path.join(self.dstdir,'projects/setup')
         setup.dump_sh(base)
         setup.dump_csh(base)
+
+        # this is ugly!
+        def munge_script(ext,match):
+            fname=os.path.join(base,'10_lcgcmt.%s'%ext)
+            fp = open(fname)
+            lines = fp.read().split('\n')
+            fp.close()
+            out = []
+            for line in lines:
+                if line[:len(match)] == match:
+                    line = match+self.dstdir
+                    pass
+                out.append(line)
+                continue
+            fp = open(fname,"w")
+            fp.write('\n'.join(out))
+            fp.close()
+            return
+
+        munge_script("sh","SITEROOT=")
+        munge_script("csh","setenv SITEROOT ")
         return
 
     def _fix_projects(self):
