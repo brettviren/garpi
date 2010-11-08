@@ -265,11 +265,20 @@ check_dstdir () {
     fi
     if [ ! -d $dstdir ] ; then
 	mkdir -p $dstdir
+	if [ "$?" != "0" ] ; then
+	    echo "Failed to make $dstdir"
+	    exit 1
+	fi
     fi
     if [ $(ls $dstdir | wc -l) != 0 ] ; then
 	echo "Destination not empty, check $dstdir"
 	exit 1
     fi
+    if ! touch $dstdir/.junk ; then
+	echo "Destination is not writable"
+	exit 1
+    fi
+    rm -f $dstdir/.junk
 }    
 
 
