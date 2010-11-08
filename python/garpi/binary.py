@@ -28,11 +28,13 @@ class Packer(object):
         self.pack_projects()
         self.pack_externals()
         self.pack_extra()
+        self.pack_garpi()
         return self.tar
         
     def _keeper(self, path):
         if not len(path): return False
         if path[-1] == '~': return False
+        if path[-1] == '#': return False
         if path[-4:] == '.pyc': return False
         if '/genConf/' in path: return False
 
@@ -163,6 +165,24 @@ class Packer(object):
             pass
         self.pack_files(paths)
         return
+    def pack_garpi(self):
+        '''
+        Add garpi to the pack.
+        '''
+        import command
+        files = []
+        out = command.cmd("find garpi -type f -print", output=True)
+
+        for path in out.split('\n'):
+            if not self._keeper(path): 
+                continue
+
+            if path[:2] == './': path = path[2:]
+            files.append(path)
+            continue
+        self.pack_files(files)
+        return
+
 
             
 class Unpacker(object):
