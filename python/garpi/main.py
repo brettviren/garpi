@@ -237,6 +237,7 @@ setenv CMTCONFIG %s
                 continue
             pass
         for proj in projlist:
+            if proj.name == 'lcgcmt': continue
             print 'Building %s'%proj.name
             proj.config()
             proj.make()

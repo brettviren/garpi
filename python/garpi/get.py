@@ -76,7 +76,9 @@ def get_cvs(url,module,tag,target,overwrite):
         fs.goto(target)
         cvs.cvscmd('up')
     else:
-        cvs.cvscmd('-d %s %s %s %s'%(url,cmd,module,target))
+        tagflag = ""
+        if tag: tagflag = "-r "+tag
+        cvs.cvscmd('-d %s %s %s %s %s'%(url,cmd,tagflag,module,target))
     return target
 
 def get_http_ftp(what,url,target,overwrite):
