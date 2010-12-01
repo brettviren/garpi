@@ -47,7 +47,8 @@ class Gaudi(Project):
 
         # Get versions
         import cmt
-        uses = cmt.get_uses(self.proj_dir()+'/'+self.rel_pkg())
+        pkg_dir = os.path.join(self.proj_dir()+'/'+self.rel_pkg())
+        uses = cmt.get_uses(pkg_dir,self.env(pkg_dir))
         for use in uses:
             #print 'use:',use.name,use.project,use.directory,use.version
             if use.project == 'gaudi' and use.directory == '':

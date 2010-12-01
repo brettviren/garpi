@@ -51,6 +51,14 @@ def test_macro():
     for name in ['LCG_system','Python_home']:
         print name,cmt.macro(name,dir=pkgdir)
     
+def test_lcgcmt_macro():
+    pkgdir = 'projects/lcgcmt/LCG_Interfaces/Python/cmt'
+    from garpi import lcgcmt
+    proj = lcgcmt.Lcgcmt()
+    for name in ['LCG_system','Python_home']:
+        print name,proj.macro(name)
+    
+
 if '__main__' == __name__:
     #test_download()
     #test_unpack()
@@ -59,5 +67,6 @@ if '__main__' == __name__:
     #test_help()
     #test_show()
     #test_uses()
-    test_macro()
+    #test_macro()
+    test_lcgcmt_macro()
     

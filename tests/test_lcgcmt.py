@@ -31,8 +31,7 @@ def test_env():
 
 def test_reachable_packages():
     from garpi import cmt
-    pkgs = cmt.reachable_packages('LCG_Release',extra_env=lcgcmt.env(),
-                                  dir=lcgcmt.proj_dir())
+    pkgs = cmt.reachable_packages('LCG_Release', environ=lcgcmt.env(), dir=lcgcmt.proj_dir())
     assert pkgs['LCG_Release'] == lcgcmt.proj_dir(), 'LCG_Release not in consistent location: "%s" != "%s"'%(pkgs['LCG_Release'],lcgcmt.proj_dir())
 
 
@@ -132,4 +131,6 @@ if '__main__' == __name__:
         #test_build_packages()
         
     #stage1()
-    stage2()
+    #stage2()
+    test_make()
+    test_reachable_packages()

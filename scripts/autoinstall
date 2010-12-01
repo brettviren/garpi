@@ -21,6 +21,9 @@ commands:
     externals		: download and build externals
     projects		: build projects
 
+ move <path> [name]     : move a completed build to the given new "path"
+                          use given "name" to name setup scripts, default
+                          uses current directory name.
 
 EOF
     exit 0
@@ -241,7 +244,7 @@ externals () {
 projects () {
     source garpi-setup.sh
     source cmtconfig-setup.sh
-    info "Installing externals"
+    info "Installing projects"
     logcmd garpi projects
 }
 everything () {
@@ -251,6 +254,63 @@ everything () {
     cmtconfig
     externals
     projects
+}
+
+
+check_dstdir () {
+    dstdir=$1 ; shift
+    if [ -z "$dstdir" ] ; then
+	echo "No destination given for move"
+	exit 1
+    fi
+    if [ ! -d $dstdir ] ; then
+	mkdir -p $dstdir
+	if [ "$?" != "0" ] ; then
+	    echo "Failed to make $dstdir"
+	    exit 1
+	fi
+    fi
+    if [ $(ls $dstdir | wc -l) != 0 ] ; then
+	echo "Destination not empty, check $dstdir"
+	exit 1
+    fi
+    if ! touch $dstdir/.junk ; then
+	echo "Destination is not writable"
+	exit 1
+    fi
+    rm -f $dstdir/.junk
+}    
+
+
+
+
+
+move () {
+    dstdir=$1 ; shift
+    check_dstdir $dstdir
+    
+    name=$1 ; shift
+    if [ -z "$name" ] ; then
+	name=$(basename $(pwd))
+    fi
+
+    source garpi-setup.sh
+    source cmtconfig-setup.sh
+
+    tarfile=$name-pack$$.tar
+    echo "Packing to temp \"$tarfile\""
+    garpi pack $tarfile
+    oldcwd=$(pwd)
+    tarfile=$oldcwd/$tarfile
+
+    pushd $dstdir > /dev/null 2>&1
+    echo "Unpacking in $(pwd)"
+    garpi unpack $tarfile
+    rm -f $tarfile
+
+    garpi emit_setenv_config > setup-$name.cfg
+    ./garpi/scripts/garpi-setenv -N setup-$name -S setup-$name -D $(pwd)/setup-$name.cfg
+    
 }
 
 what=$1 ; shift

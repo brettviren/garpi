@@ -31,11 +31,11 @@ class Lcgcmt(Project):
     def test_cmtconfig(self,cmtconfig):
         import cmt
         rel_path = os.path.join(self.proj_dir(),self.rel_pkg(),'cmt')
-        extra_env = cmt.env(rel_path)
-        suggested = cmt.macro('host-cmtconfig',extra_env=extra_env,dir=rel_path).strip()
-        extra_env['CMTCONFIG'] = cmtconfig
-        found = cmt.macro('host-cmtconfig',extra_env=extra_env,dir=rel_path).strip()
-        platform = cmt.macro('LCG_platform',extra_env=extra_env,dir=rel_path).strip()
+        environ = self.env(rel_path)
+        suggested = cmt.macro('host-cmtconfig', environ=environ, dir=rel_path).strip()
+        environ['CMTCONFIG'] = cmtconfig
+        found = cmt.macro('host-cmtconfig', environ=environ, dir=rel_path).strip()
+        platform = cmt.macro('LCG_platform', environ=environ, dir=rel_path).strip()
         assert cmtconfig == found, 'Error: given CMTCONFIG not supported: "%s" != "%s"'%(cmtconfig,found)
         assert cmtconfig == platform, 'Error: CMTCONFIG will differ from platform: "%s" != "%s"'%(cmtconfig,platform)
         return
@@ -184,7 +184,7 @@ setenv CMTEXTRATAGS %s
         cmtdir = os.path.join(bdir,'cmt')
 
         envdir = os.path.join('LCG_Builders',pkg)
-        env = self.env(envdir)
+        environ = self.env(envdir)
 
         import fs
         fs.goto(cmtdir)
@@ -193,7 +193,7 @@ setenv CMTEXTRATAGS %s
         if not cmds: cmds = ['get','config','make','install']
         for what in cmds:
             print '\t%s'%what
-            cmt.cmt('pkg_%s'%what,extra_env=env,dir=cmtdir)
+            cmt.cmt('pkg_%s'%what, environ=environ, dir=cmtdir)
 
         
         fs.goback()
