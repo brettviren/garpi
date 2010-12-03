@@ -14,7 +14,7 @@ class Gaudi(Project):
         print 'gaudi url: "%s"'%url
         print 'gaudi tag: "%s"'%self.tag()
         # Gaudi has a peculiar repository
-        if url[:3] == 'git': return self._download_git()
+        if url[:3] == 'git': return self._download_git_monolithic()
         if url[:3] == 'svn' and 'cern.ch' in url: self._download_cern_svn()
         return Project.download(self)
 
@@ -32,16 +32,32 @@ class Gaudi(Project):
         svncmd('co %s %s/gaudi'%(url,fs.projects()))
         return            
 
-    def _download_git(self):
+
+    def _download_git_monolithic(self):
+        'If gaudi is served from a monolithic git repo'
         url = self.url()
         if url[4] == '+': url = url[4:]
         log.info(self.name +' download')
 
         # Get super project
-        self.clone(url)
+        self._git_clone(url)
 
         # Get release package
-        self.checkout(self.rel_pkg(),self.tag())
+        self._git_checkout(self.tag())
+        self.init_project(['lcgcmt'])
+        return
+
+    def _download_git_submodules(self):
+        'If gaudi is served from a git repo with a submodule per pacakge'
+        url = self.url()
+        if url[4] == '+': url = url[4:]
+        log.info(self.name +' download')
+
+        # Get super project
+        self._git_clone(url,True)
+
+        # Get release package
+        self._git_checkout(self.tag(),self.rel_pkg())
         
         self.init_project(['lcgcmt'])
 
@@ -55,9 +71,12 @@ class Gaudi(Project):
                 if '*' in use.version:
                     log.info('Skipping %s %s'%(use.name,use.version))
                     continue
-                self.checkout(use.name,use.version)
+                self._git_checkout(use.version,use.name)
+                pass
+            continue
+        return
 
-    def clone(self,url):
+    def _git_clone(self,url,submodules=False):
         import fs,git
         target = fs.projects()+'/gaudi'
         if os.path.exists(target):
@@ -68,14 +87,15 @@ class Gaudi(Project):
         git.clone(url,'gaudi')
         fs.goback()
 
-        fs.goto(os.path.join(fs.projects(),'gaudi'),True)
-        git.submodule('init')
-        git.submodule('update')
-        fs.goback()
+        if submodules:
+            fs.goto(os.path.join(fs.projects(),'gaudi'),True)
+            git.submodule('init')
+            git.submodule('update')
+            fs.goback()
 
         return
 
-    def checkout(self,pkg,tag):
+    def _git_checkout(self,tag,pkg=""):
         import fs,git
         fs.goto(os.path.join(fs.projects(),'gaudi',pkg))
 
