@@ -76,6 +76,22 @@ class Project:
         fs.goback
         return
         
+    def cfg_environ(self):
+        '''Return any initial environment.  This comprises the
+        environment in which garpi is run + any extra defined in the
+        "environ" project's configuration stanza
+        '''
+        import ConfigParser
+        env = dict(os.environ)
+        try:
+            extra = self.get_config('environ')
+            extra = eval(extra)
+        except ConfigParser.NoOptionError:
+            extra = {}
+        env.update(extra)
+        return env
+        
+
     def env(self, rel_dir=None):
 
         '''Return dictionary of env for the given project and optional
@@ -88,8 +104,10 @@ class Project:
         from command import source
         import fs
 
+        environ = self.cfg_environ()
+
         #print 'projects.env(): Source %s/setup.sh'%fs.projects()
-        environ = source('./setup.sh', dir=fs.projects())
+        environ = source('./setup.sh', env=environ, dir=fs.projects())
         if not rel_dir: 
             rel_dir = self.rel_pkg()
             #print 'Using rel_dir =', rel_dir
