@@ -1,0 +1,10 @@
+Gaudi And Related Projects Installer
+
+Garpi is a high level script on top of Garpi's LCGCMT-based
+installation and configuration.  It uses LCGCMT's builders and
+interfaces packages and a starting project to automatically determine
+which external packages are needed, downloads their source and
+installs it.
+
+
+
